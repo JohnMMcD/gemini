@@ -18,20 +18,22 @@ Feature: Positive Testcases (those that should succeed)
     Given we have enough funds
 	When we buy currency from this table
 	| amount | currency | price |
-	| 0.1 | BTCUsd | 3664 |
-	| 1.1 | ethUSD | 1234 |
+	|    0.1 |   BTCUsd | 30000 |
+	|    1.1 |   ethUSD |   900 |
     Then the order will succeed
 
+  Scenario: Table-driven exchange-limit maker-or-cancel sell order
     Given we have enough funds
 	When we sell currency from this table
 	| amount | currency | price |
-	| 0.1 | BTCUsd | 3665 |
-	| 1.1 | ethUSD | 1235 |
+	|    0.1 |   BTCUsd |  9000 |
+	|    1.1 |   ethUSD |   250 |
     Then the order will succeed
 
+  Scenario: Table-driven exchange-limit maker-or-cancel buy or sell
     Given we have enough funds
 	When we transact currency from this table
 	| side | amount | currency | price |
-	| buy | 0.1 | BTCUsd | 3666 |
-	| sell | 1.1 | ethUSD | 1236 |
+	| buy  | 0.1    | BTCUsd   | 30001 |
+	| sell | 1.1    | ethUSD   |   245 |
     Then the order will succeed
