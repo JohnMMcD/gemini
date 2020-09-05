@@ -33,6 +33,7 @@ def step_impl(context):
     for row in context.table:
         print(f"Buying from table {row[0]} {row[1]}")
         # TODO: execute the purchase
+        gemini.buy(row[0], row[1], "3663")
     assert context.failed is False
 
 
