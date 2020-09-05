@@ -10,7 +10,7 @@ If you're reading this, you should know this repository's purpose.
 * That the account has sufficient funds and the market has sufficient liquidity to execute transactions of arbitrary size, except for those negative testcases marked NSF.
 * That the user's account has the Trader role specified
 * That the OAuth scope has orders:create assigned to access this endpoint.
-* That the [rate limits](https://docs.gemini.com/rest-api/#rate-limits) have been disabled, so I don't have to add time.sleep(1) before each request.
+* That the [rate limits](https://docs.gemini.com/rest-api/#rate-limits) have been disabled, so I don't have to add time.sleep(1) before each request. However, I ended up adding in the sleep anyway so that the nonce (which was based on time) would increase.
 * That these areas are out of scope:
  * anything related to high transaction volumes which could risk system stability (yes, I know one laptop won't stress the backend, but it seems impolite to appear to try). So whole classes of tests, such as memory leak, uptime, response time, stability, and anything else involving concurrent users, are out of scope.
  * session creation and validity. This is because the "If you wish orders to be automatically cancelled when your session ends, see the require heartbeat section, or manually send the cancel all session orders message" note combined with the "no other endpoints" restriction, makes session creation and validity difficult to test, so I'll assume a valid session exists and does not expire for the duration of the test.
