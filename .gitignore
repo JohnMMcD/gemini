@@ -2,4 +2,5 @@ __pycache__/
 reports/
 key.txt
 secret.txt
-
+# There are too many files in the venv to worry about. Just document the dependencies in the readme.
+venv/
