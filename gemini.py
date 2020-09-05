@@ -11,7 +11,7 @@ ENDPOINT = "/v1/order/new"
 URL = BASE_URL + ENDPOINT
 
 # from https://docs.gemini.com/rest-api/#all-supported-symbols
-SUPPORTED_SYMBOLS_REGEX =  "btcusd|ethbtc|ethusd|zecusd|zecbtc|zeceth|zecbch"
+SUPPORTED_SYMBOLS_REGEX = "btcusd|ethbtc|ethusd|zecusd|zecbtc|zeceth|zecbch"
 SUPPORTED_SYMBOLS_REGEX += "|zecltc|bchusd|bchbtc|bcheth|ltcusd|ltcbtc|ltceth"
 SUPPORTED_SYMBOLS_REGEX += "|ltcbch|batusd|daiusd|linkusd|oxtusd|batbtc"
 SUPPORTED_SYMBOLS_REGEX += "|linkbtc|oxtbtc|bateth|linketh|oxteth"
@@ -20,6 +20,7 @@ SIDE_REGEX = "buy|sell"
 # Read the key and secret from files so you don't upload them to github
 API_KEY = open("key.txt", "r").read()
 API_SECRET = open("secret.txt", "r").read().encode()
+
 
 class NSFError(Exception):
     pass
@@ -42,24 +43,23 @@ def transact_payload_WIP(order_payload, order_options):
     b64 = base64.b64encode(encoded_payload)
     signature = hmac.new(API_SECRET, b64, hashlib.sha384).hexdigest()
 
-    request_headers = { 'Content-Type': "text/plain",
-                        'Content-Length': "0",
-                        'X-GEMINI-APIKEY': API_KEY,
-                        'X-GEMINI-PAYLOAD': b64,
-                        'X-GEMINI-SIGNATURE': signature,
-                        'Cache-Control': "no-cache" }
+    request_headers = {'Content-Type': "text/plain",
+                       'Content-Length': "0",
+                       'X-GEMINI-APIKEY': API_KEY,
+                       'X-GEMINI-PAYLOAD': b64,
+                       'X-GEMINI-SIGNATURE': signature,
+                       'Cache-Control': "no-cache"}
     print("Request headers:")
     print(request_headers)
     # Had to put a sleep in here so the nonces would change
     time.sleep(2.0)
     response = requests.post(URL,
-                            data=None,
-                            headers=request_headers)
+                             data=None,
+                             headers=request_headers)
 
     new_order_response = response.json()
-    print("Response:")
-    print(new_order_response)
-    return(new_order_response)
+    print(f"Response: {new_order_response}")
+    return (new_order_response)
 
 
 def transact(amount, symbol, price, side, otype, options, stop_price=0.0):
@@ -83,9 +83,9 @@ def transact(amount, symbol, price, side, otype, options, stop_price=0.0):
     # to be fairly large. In order to have subsequent nonces be
     # increasing, I have to add the largest previous value to
     # the time-based one. I'm glad Python int is not limited.
-    payload_nonce =  str(99999999999999999 + int(time.mktime(t.timetuple())*1000))
+    payload_nonce = str(99999999999999999 + int(time.mktime(t.timetuple()) * 1000))
     payload = {
-       "request": ENDPOINT,
+        "request": ENDPOINT,
         "nonce": payload_nonce,
         "symbol": symbol.lower(),
         "amount": amount,
@@ -94,28 +94,30 @@ def transact(amount, symbol, price, side, otype, options, stop_price=0.0):
         "type": otype,
         "options": options
     }
-    print("Payload:")
-    print(payload)
+    print(f"Payload: {str(payload)}")
 
     encoded_payload = json.dumps(payload).encode()
     b64 = base64.b64encode(encoded_payload)
     signature = hmac.new(API_SECRET, b64, hashlib.sha384).hexdigest()
 
-    request_headers = { 'Content-Type': "text/plain",
-                        'Content-Length': "0",
-                        'X-GEMINI-APIKEY': API_KEY,
-                        'X-GEMINI-PAYLOAD': b64,
-                        'X-GEMINI-SIGNATURE': signature,
-                        'Cache-Control': "no-cache" }
-    print("Request headers:")
-    print(request_headers)
+    request_headers = {'Content-Type': "text/plain",
+                       'X-GTEST-side': side.lower(),
+                       'X-GTEST-type': otype,
+                       'X-GTEST-price': price,
+                       'X-GTEST-symbol': symbol,
+                       'X-GTEST-options': ', '.join(options),
+                       'X-GEMINI-PAYLOAD': b64,
+                       'X-GEMINI-APIKEY': API_KEY,
+                       'X-GEMINI-SIGNATURE': signature,
+                       'Content-Length': "0",
+                       'Cache-Control': "no-cache"}
+    print(f"Request headers: {str(request_headers)}")
     # Had to put a sleep in here so the nonces would change
     time.sleep(2.0)
     response = requests.post(URL,
-                            data=None,
-                            headers=request_headers)
+                             data=None,
+                             headers=request_headers)
 
     new_order_response = response.json()
-    print("Response:")
-    print(new_order_response)
-    return(new_order_response)
+    print(f"Response: {str(new_order_response)}")
+    return (new_order_response)
