@@ -6,7 +6,10 @@
 Feature: Negative Testcases (those that should fail)
 
   Scenario: Run a simple test
-    Given we have insufficient funds
-    When we buy 5.0 BTCUSD
-    Then the order will fail
-
+    Given we have enough funds
+	When we sell currency from this table
+	| amount | currency |  price |
+	|    0.1 |   BTCUsd | 0.0001 |
+	|    0.1 |   ethUSD | 0.0001 |
+    Then the order will give the error InvalidPrice
+    # {'result': 'error', 'reason': 'InvalidPrice', 'message': 'Invalid price for symbol BTCUSD: 0.0001'}
