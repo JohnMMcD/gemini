@@ -32,6 +32,7 @@ class TestGemini(unittest.TestCase):
                         f"Non-positive executed_amount: {response['executed_amount']}")
         return True
 
+
     def verify_error(self, response, reason):
         """
         Verifies the response had the expected error, and the reason matched.
@@ -49,18 +50,23 @@ class TestGemini(unittest.TestCase):
         self.assertNotIn("is_cancelled", response, f"Unexpected cancellation because of {response['reason']}")
         return True
 
-    def testBuyNormal(self):
+
+    def testGeminiBuy(self):
         side = "buy"
         response = gemini.transact(self.amount, self.currency, self.buy_price, side, self.type, self.options)
         self.verify_fine(response)
 
 
-    def testShowCurrencies(self):
-        print("Currencies:")
-        print(gemini.CURRENCIES)
-        print (gemini.SUPPORTED_SYMBOLS_REGEX)
+    def testGeminiModule(self):
+        print(f"Currencies: {str(gemini.CURRENCIES)}")
+        # print(gemini.CURRENCIES)
+        print (f"Symbols regex: {gemini.SUPPORTED_SYMBOLS_REGEX}")
         print (gemini.DICT_BIDASK)
-        print ('Bitcoin is asking: ' + str(gemini.DICT_BIDASK['btcusd']['ask']))
+        print ('Bitcoin is asking: ' + gemini.DICT_BIDASK['btcusd']['ask'])
+        fBid = float(gemini.DICT_BIDASK['btcusd']['bid'])
+        fBidPlus10Percent = fBid * 1.10
+        print ('Bitcoin bid + 10% is: ' + str(fBidPlus10Percent))
+
 
 if __name__ == '__main__':
     unittest.main()
