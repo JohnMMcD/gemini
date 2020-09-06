@@ -23,10 +23,10 @@ class TestOrderSide(unittest.TestCase):
             True if everything went OK, throws assertion otherwise
         """
         # The 'result' key is only present if there is an error.
-        self.assertTrue("result" not in response, "Unexpected result in response: response['result']}")
+        self.assertNotIn("result", response, "Unexpected result in response: response['result']}")
         # is_cancelled and executed_amount should be there
-        self.assertTrue("is_cancelled" in response, "Missing cancellation key in response")
-        self.assertTrue("executed_amount" in response, "Missing executed_amount key in response")
+        self.assertIn("is_cancelled", response, "Missing cancellation key in response")
+        self.assertIn("executed_amount", response, "Missing executed_amount key in response")
         # is_cancelled should be false.
         self.assertFalse(response["is_cancelled"], f"Response was unexpectedly cancelled")
         # executed_amount must be positive
@@ -44,11 +44,11 @@ class TestOrderSide(unittest.TestCase):
             True if everything went OK, throws assertion otherwise
         """
         self.assertTrue("result" in response and response["result"] == "error", "Did not get an error as expected")
-        self.assertTrue("reason" in response, "Did not get a reason for the error")
-        self.assertTrue(reason == response["reason"],
-                        f"Got error as expected, but got {response['reason']} instead of {reason}")
+        self.assertIn("reason", response, "Did not get a reason for the error")
+        self.assertEqual(reason, response["reason"],
+                          f"Got error as expected, but got {response['reason']} instead of {reason}")
         # Errors shouldn't have the is_cancelled element. If this element exists, then we want to know the reason.
-        self.assertTrue("is_cancelled" not in response, f"Unexpected cancellation because of {response['reason']}")
+        self.assertNotIn("is_cancelled", response, f"Unexpected cancellation because of {response['reason']}")
         return True
 
     def testBuyNormal(self):
