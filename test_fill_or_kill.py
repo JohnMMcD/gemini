@@ -7,6 +7,7 @@ class TestFillOrKill(unittest.TestCase):
     currency = "btcusd"
     buy_price = "16000"
     sell_price = "1.01"
+    """ List from https://docs.gemini.com/rest-api/#order-status , but some at this link are optional  """
     mandatory_fields = ["order_id", "symbol", "exchange", "price",
                         "avg_execution_price", "side", "type", "options",
                         "timestamp", "timestampms", "is_live",
@@ -24,12 +25,20 @@ class TestFillOrKill(unittest.TestCase):
     amount_slightly_too_high = "99999"
 
     # self.verify_executed(response, self.amount, self.currency, self.buy_price, side, self.type, self.options)
-    def verify_executed(self, response, amount, currency, price, side, type, options):
+    def verify_executed(self, response, amount, currency, price, side, order_type, options):
         """
         Verifies the response did not have any errors, was not cancelled, and
         had a positive execution amount. Other test may be added.
         Args:
             response: the dictionary containing the response to be checked
+            amount: the quantity that should have been executed
+            currency: the currency symbol
+            price: the price. Might need to tweak this because best effort means
+            that buys might be at a lower price than requested
+            order_type: type of order
+            side: buy or sell
+            options:
+
         Returns:
             True if everything went OK, throws assertion otherwise
         """
@@ -42,6 +51,8 @@ class TestFillOrKill(unittest.TestCase):
                         f"Non-positive executed_amount: {response['executed_amount']}")
         self.assertEqual(response['executed_amount'], amount,
                          f"Amount mismatch! Expected {amount}, was {response['executed_amount']}")
+        self.assertEqual(response['symbol'], currency,
+                         f"Symbol mismatch! Expected {currency}, was {response['symbol']}")
         f_price = float(response['price'])
         self.assertTrue(abs(f_price - float(price)) < 0.001,
                         f"Executed prices differ: Expected {str(price)}), was {str(f_price)}")
@@ -51,8 +62,8 @@ class TestFillOrKill(unittest.TestCase):
         f_executed = float(response['executed_amount'])
         self.assertTrue(abs(f_executed - float(amount)) < 0.001,
                         f"Executed amounts differ: Expected {amount}, was {response['executed_amount']}")
-        self.assertEqual(response['type'], type,
-                         f"Type mismatch! Expected {type}, was {response['type']}")
+        self.assertEqual(response['type'], order_type,
+                         f"Type mismatch! Expected {order_type}, was {response['type']}")
         self.assertEqual(response['options'], options,
                          f"Options mismatch! Expected {options}, was {response['options']}")
 
@@ -80,8 +91,7 @@ class TestFillOrKill(unittest.TestCase):
 
 
     def verify_response_basics(self, response):
-        # Check the keys which must be present. There values will be verified separately.
-        # Should match list from https://docs.gemini.com/rest-api/#order-status
+        # Check the keys which must be present. Their values will be verified separately.
         for key in self.mandatory_fields:
             self.assertIn(key, response, f"Missing {key} key in response")
         self.assertEqual(response['exchange'], 'gemini',
