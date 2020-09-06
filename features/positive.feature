@@ -32,6 +32,6 @@ Feature: Positive Testcases (those that should succeed)
     Given we have enough funds
 	When we transact currency from this table
 	|  side | amount | currency |  price |
-	|   buy |    0.1 |   BTCUsd | 99999 |
+	|   buy |    0.1 |   BTCUsd | 99999  |
 	|  sell |    0.1 |   ethUSD |    0.1 |
     Then the order will not be cancelled
