@@ -36,8 +36,7 @@ def transact_payload_WIP(order_payload, order_options):
     options - a list of options from https://docs.gemini.com/rest-api/#order-execution-options
 
     """
-    print("Payload:")
-    print(order_payload)
+    print(f"Payload: {str(order_payload)}")
 
     encoded_payload = json.dumps(order_payload).encode()
     b64 = base64.b64encode(encoded_payload)
@@ -49,8 +48,8 @@ def transact_payload_WIP(order_payload, order_options):
                        'X-GEMINI-PAYLOAD': b64,
                        'X-GEMINI-SIGNATURE': signature,
                        'Cache-Control': "no-cache"}
-    print("Request headers:")
-    print(request_headers)
+    print(f"Request headers: str({request_headers})")
+
     # Had to put a sleep in here so the nonces would change
     time.sleep(2.0)
     response = requests.post(URL,
@@ -63,17 +62,19 @@ def transact_payload_WIP(order_payload, order_options):
 
 
 def transact(amount, symbol, price, side, otype, options, stop_price=0.0):
-    """ Execute an order with the amount/symbol etc. specified
-
-    Keyword arguments:
-    amount - the quantity of items to buy or sell
-    symbol - the crypto's symbol (e.g., BTCUSD). Will be converted to lower case
-    price - the requested transaction price
-    side - whether to buy or sell
-    type - "exchange limit" or "exchange stop limit"
-    options - a list of options from https://docs.gemini.com/rest-api/#order-execution-options
-
     """
+     Execute an order with the amount/symbol etc. specified
+     Args:
+        amount - the quantity of items to buy or sell
+        symbol - the crypto's symbol (e.g., BTCUSD). Will be converted to lower case
+        price - the requested transaction price
+        side - whether to buy or sell
+        type - "exchange limit" or "exchange stop limit"
+        options - a list of options from https://docs.gemini.com/rest-api/#order-execution-options
+        stop_price - The (optional) price to trigger a stop-limit order.
+     Returns:
+         dictionary containing the response
+     """
 
     t = datetime.datetime.now()
     # Things I didn't read before I started tweaking:
