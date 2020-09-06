@@ -1,5 +1,3 @@
-import unittest
-
 import gemini
 import unittest
 
