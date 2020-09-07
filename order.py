@@ -61,13 +61,14 @@ class Order:
                            'X-GTEST-type': self.order_type,
                            'X-GTEST-price': self.price,
                            'X-GTEST-symbol': self.symbol,
+                           'X-GTEST-amount': self.amount,
                            'X-GTEST-options': ', '.join(self.options),
                            'X-GEMINI-PAYLOAD': b64,
                            'X-GEMINI-APIKEY': self.API_KEY,
                            'X-GEMINI-SIGNATURE': signature,
                            'Content-Length': "0",
                            'Cache-Control': "no-cache"}
-        #        print(f"Request headers: {str(request_headers)}")
+        #print(f"Request headers: {str(request_headers)}")
         # Had to put a sleep in here so the nonces would change
         time.sleep(2.0)
         response = requests.post(self.URL,
@@ -75,7 +76,7 @@ class Order:
                                  headers=request_headers)
 
         new_order_response = response.json()
-        #       print(f"Response: {str(new_order_response)}")
+        #print(f"Response: {str(new_order_response)}")
         return (new_order_response)
 
     def execute(self):
@@ -210,8 +211,11 @@ class CancelledInFullResponse(Response):
         Returns:
             True if everything went OK, throws assertion otherwise.
         """
-        # The 'result' key is only present if there is an error.
-        assert "result" not in self.raw, f"Unexpected result in response: {self.raw['result']}"
+        # The 'result' key is only present if there is an error, which shouldn't be the case
+        # Also log the reason for the error, because it's good to know and the reason is always given,
+        # unless there's a KeyError.
+        assert "result" not in self.raw, \
+            f"Unexpected result in response: {self.raw['result']} with reason {self.raw['reason']}"
         # is_cancelled should be True.
         assert self.raw["is_cancelled"], f"Response should have been cancelled but was not"
         assert self.raw["reason"] == reason, f"Reason mismatch: expected {reason}, got {self.raw['reason']}"
