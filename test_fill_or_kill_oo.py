@@ -74,7 +74,7 @@ class TestFillOrKillOO(unittest.TestCase):
         print("Let's get going! We'll pretend we are starting a new session.")
 
     @classmethod
-    def tearDownClas(cls):
+    def tearDownClass(cls):
         print("Fini! We'll pretend we cancelled all open orders and closed the session.")
 
 
