@@ -29,6 +29,7 @@ class Order:
         self.min_amount = min_amount
         self.stop_price = stop_price
         self.client_order_id = client_order_id
+        self.payload = {} # gets populated when executed
 
     def execute_payload(self, payload):
         """ Executes the order with the given payload. This is at a lower level compared to
