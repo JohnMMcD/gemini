@@ -97,6 +97,14 @@ class Order:
             "type": self.order_type,
             "options": self.options
         }
+        # Add optional parameters
+        if self.stop_price:
+            payload['stop_price'] = self.stop_price
+        if self.min_amount:
+            payload['min_amount'] = self.min_amount
+        if self.client_order_id:
+            payload['client_order_id'] = self.client_order_id
+
 #        print(f"Payload: {str(payload)}")
         return self.execute_payload(payload)
 
@@ -104,6 +112,13 @@ class Order:
 class ExchangeLimitOrder(Order):
     def __init__(self, side, amount, symbol, price, options):
         Order.__init__(self, side, amount, symbol, price, "exchange limit", options)
+
+
+class StopLimitOrder(Order):
+    def __init__(self, side, amount, symbol, price, stop_price):
+        """ 'No options can be applied to stop-limit orders at this time.' """
+        Order.__init__(self, side=side, amount=amount, symbol=symbol, price=price,
+                       order_type="exchange stop limit", min_amount='', options=[], stop_price=stop_price)
 
 
 class MakerOrCancelOrder(ExchangeLimitOrder):
