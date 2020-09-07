@@ -145,9 +145,11 @@ class ExecutedInFullResponse(Response):
             True if everything went OK, throws assertion otherwise.
         """
         # The 'result' key is only present if there is an error.
-        assert "result" not in self.raw, "Unexpected result in response: self.raw['result']}"
+        assert "result" not in self.raw, \
+            f"Unexpected result in response: {self.raw['result']}"
         # is_cancelled should be false.
-        assert not self.raw["is_cancelled"], f"Response was unexpectedly cancelled with reason {self.raw['reason']}."
+        assert not self.raw["is_cancelled"], \
+            f"Response was unexpectedly cancelled with reason {self.raw['reason']}."
         # executed_amount must be positive
         assert float(self.raw['executed_amount']) > 0, \
             f"Non-positive executed_amount: {self.raw['executed_amount']}"
@@ -158,7 +160,8 @@ class ExecutedInFullResponse(Response):
         f_price = float(self.raw['price'])
         assert abs(f_price - float(order.price)) < 0.001, \
             f"Executed prices differ: Expected {str(order.price)}), was {str(f_price)}"
-        assert self.raw['side'] == order.side, f"Side mismatch! Expected {order.side}, was {self.raw['side']}"
+        assert self.raw['side'] == order.side, \
+            f"Side mismatch! Expected {order.side}, was {self.raw['side']}"
         f_executed = float(self.raw['executed_amount'])
         assert abs(f_executed - float(order.amount)) < 0.001, \
             f"Executed amounts differ: Expected {order.amount}, was {self.raw['executed_amount']}"
