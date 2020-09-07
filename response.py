@@ -144,9 +144,9 @@ class ExecutedInFullResponse(Response):
         Returns:
             True if everything went OK, throws assertion otherwise.
         """
-        # The 'result' key is only present if there is an error.
+        # The 'result' key is only present if there is an error, and there should be a reason
         assert "result" not in self.raw, \
-            f"Unexpected result in response: {self.raw['result']}"
+            f"Unexpected result in response: {self.raw['result']} {self.raw['reason']}"
         # is_cancelled should be false.
         assert not self.raw["is_cancelled"], \
             f"Response was unexpectedly cancelled with reason {self.raw['reason']}."
@@ -171,3 +171,68 @@ class ExecutedInFullResponse(Response):
             f"Options mismatch! Expected {order.options}, was {self.raw['options']}"
 
         return True
+
+
+class NoExecutedAmountResponse(Response):
+    """ This response is used when the order was executed but the executed_amount should be zero."""
+    def __init__(self, dict):
+        Response.__init__(self, dict)
+
+    def verify(self, order):
+        """
+        Verifies the response did not have any errors, was not cancelled, and has a zero execution
+        amount. Other tests may be added.
+        Args:
+            order: the order to check against.
+        Returns:
+            True if everything went OK, throws assertion otherwise.
+        """
+        # The 'result' key is only present if there is an error, and there should be a reason
+        # print(self.raw)
+        assert "result" not in self.raw, \
+            f"Unexpected result: {self.raw['result']} with reason: {self.raw['reason']} and message: {self.raw['message']}"
+        # is_cancelled should be false.
+        assert not self.raw["is_cancelled"], \
+            f"Unexpectedly cancelled with reason {self.raw['reason']}."
+        # executed_amount must be zero
+        f_executed = float(self.raw['executed_amount'])
+        assert (f_executed > -0.001) and (f_executed < 0.001), \
+            f"Non-zero executed_amount: {self.raw['executed_amount']}"
+#        assert self.raw['remaining_amount'] == order.amount, \
+#            f"Amount mismatch! Expected {order.amount} to be remaining, was {self.raw['remaining_amount']}"
+        assert self.raw['symbol'] == order.symbol, \
+            f"Symbol mismatch! Expected {order.symbol}, was {self.raw['symbol']}"
+        f_price = float(self.raw['price'])
+        assert abs(f_price - float(order.price)) < 0.001, \
+            f"Executed prices differ: Expected {str(order.price)}), was {str(f_price)}"
+        assert self.raw['side'] == order.side, \
+            f"Side mismatch! Expected {order.side}, was {self.raw['side']}"
+        assert self.raw['options'] == order.options, \
+            f"Options mismatch! Expected {order.options}, was {self.raw['options']}"
+        """
+        Verify the type
+        This seems like a bug. https://docs.gemini.com/rest-api/#order-status lists these values for the type field:
+        * exchange limit
+        * auction-only exchange limit
+        * market buy
+        * market sell
+        * indication-of-interest
+        
+        First, per https://docs.gemini.com/rest-api/#new-order, "The API doesn't directly support 
+        market orders because they provide you with no price protection", so I don't see how the 
+        'market buy' and 'market sell' types would ever be used.
+        Second, 'stop-limit' is missing from the list. This value is returned when the order type is
+        "exchange stop limit". The values in the bullets should be corrected to the actual returned values,
+        including checking that the hyphens are noted correctly. 
+        Also should think about changing the values returned here to match the values from the
+        order-new API, but this would affect backwards compatibility.
+
+        Due to this issue, I'm disabling the test for order type 
+        assert self.raw['type'] == order.order_type, \
+            f"Type mismatch! Expected {order.order_type}, was {self.raw['type']}"
+
+        """
+
+
+        return True
+
