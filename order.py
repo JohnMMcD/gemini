@@ -40,14 +40,49 @@ class Order:
         self.stop_price = stop_price
         self.client_order_id = client_order_id
 
-    def execute(self, payload):
-        pass
+    def execute_payload(self, payload):
+        """ Executes the order with the given payload. This is at a lower level compared to
+         the 'execute' method and can be called directly when non-standard or
+         non-compliant payloads are required.
+
+        Args:
+            payload: dictionary to send
+
+        Returns:
+            A dictionary containing the response.
+        """
+        encoded_payload = json.dumps(payload).encode()
+        b64 = base64.b64encode(encoded_payload)
+        signature = hmac.new(self.API_SECRET, b64, hashlib.sha384).hexdigest()
+
+        # Add some extra request headers for debugging
+        request_headers = {'Content-Type': "text/plain",
+                           'X-GTEST-side': self.side,
+                           'X-GTEST-type': self.order_type,
+                           'X-GTEST-price': self.price,
+                           'X-GTEST-symbol': self.symbol,
+                           'X-GTEST-options': ', '.join(self.options),
+                           'X-GEMINI-PAYLOAD': b64,
+                           'X-GEMINI-APIKEY': self.API_KEY,
+                           'X-GEMINI-SIGNATURE': signature,
+                           'Content-Length': "0",
+                           'Cache-Control': "no-cache"}
+        #        print(f"Request headers: {str(request_headers)}")
+        # Had to put a sleep in here so the nonces would change
+        time.sleep(2.0)
+        response = requests.post(self.URL,
+                                 data=None,
+                                 headers=request_headers)
+
+        new_order_response = response.json()
+        #       print(f"Response: {str(new_order_response)}")
+        return (new_order_response)
 
     def execute(self):
-        """
-         Executes an order with the current object
+        """ Executes an order with the current object.
+
          Returns:
-             dictionary containing the response
+             A dictionary containing the response.
          """
 
         t = datetime.datetime.now()
@@ -70,33 +105,7 @@ class Order:
             "options": self.options
         }
 #        print(f"Payload: {str(payload)}")
-
-        encoded_payload = json.dumps(payload).encode()
-        b64 = base64.b64encode(encoded_payload)
-        signature = hmac.new(self.API_SECRET, b64, hashlib.sha384).hexdigest()
-
-        # Add some extra request headers for debugging
-        request_headers = {'Content-Type': "text/plain",
-                           'X-GTEST-side': self.side,
-                           'X-GTEST-type': self.order_type,
-                           'X-GTEST-price': self.price,
-                           'X-GTEST-symbol': self.symbol,
-                           'X-GTEST-options': ', '.join(self.options),
-                           'X-GEMINI-PAYLOAD': b64,
-                           'X-GEMINI-APIKEY': self.API_KEY,
-                           'X-GEMINI-SIGNATURE': signature,
-                           'Content-Length': "0",
-                           'Cache-Control': "no-cache"}
-#        print(f"Request headers: {str(request_headers)}")
-        # Had to put a sleep in here so the nonces would change
-        time.sleep(2.0)
-        response = requests.post(self.URL,
-                                 data=None,
-                                 headers=request_headers)
-
-        new_order_response = response.json()
- #       print(f"Response: {str(new_order_response)}")
-        return (new_order_response)
+        return self.execute_payload(payload)
 
 
 class ExchangeLimitOrder(Order):
@@ -134,6 +143,11 @@ class Response():
     Parent class for responses. Note that error responses have very different formats than other responses.
     """
     raw = {}
+    def __init__(self, dict_response):
+        self.raw = dict_response
+
+"""
+    
     result = ""
     reason = ""
     message = ""
@@ -156,10 +170,7 @@ class Response():
     price = ""
     original_amount = ""
     remaining_amount = ""
-
-    def __init__(self, dict_response):
-        self.raw = dict_response
-
+"""
 
 class ErrorResponse(Response):
     def __init__(self, dict_response):
@@ -185,7 +196,7 @@ class ErrorResponse(Response):
         return True
 
 
-class CancelledResponse(Response):
+class CancelledInFullResponse(Response):
     def __init__(self, dict):
         Response.__init__(self, dict)
     
@@ -193,7 +204,7 @@ class CancelledResponse(Response):
         """
         Verifies the response was cancelled and the reason matched. 
         Cancelled responses do not have any errors.
-        TODO: Determine other tests. Maybe execution_amount = 0?
+        TODO: Determine other tests.
         Args:
             reason: the reason for the cancellation
         Returns:
@@ -205,11 +216,11 @@ class CancelledResponse(Response):
         assert self.raw["is_cancelled"], f"Response should have been cancelled but was not"
         assert self.raw["reason"] == reason, f"Reason mismatch: expected {reason}, got {self.raw['reason']}"
 
-#        # executed_amount must be zero, or a very small value (never test floats for equality).
-#        f_expected = float(self.raw['executed_amount'])
-#        assert f_expected < 0.001 and f_expected > -0.001, f"Non-zero executed_amount: {self.raw['executed_amount']}"
+        # executed_amount must be zero, or a very small value (never test floats for equality).
+        f_expected = float(self.raw['executed_amount'])
+        assert f_expected < 0.001 and f_expected > -0.001, f"Non-zero executed_amount: {self.raw['executed_amount']}"
         # Checking the literal '0' string in addition to the floating point inequality
-#        assert self.raw['executed_amount'] == '0', f"Non-zero executed_amount: {self.raw['executed_amount']}"
+        assert self.raw['executed_amount'] == '0', f"Non-zero executed_amount: {self.raw['executed_amount']}"
 
         return True
 
@@ -259,9 +270,9 @@ class ExecutedInFullResponse(Response):
         matches the order submitted. Also some sanity checks for things like a positive execution
         amount. Other tests may be added.
         Args:
-            order: the order to check against
+            order: the order to check against.
         Returns:
-            True if everything went OK, throws assertion otherwise
+            True if everything went OK, throws assertion otherwise.
         """
         # The 'result' key is only present if there is an error.
         assert "result" not in  self.raw, "Unexpected result in response: self.raw['result']}"

@@ -18,11 +18,11 @@ class Test1(unittest.TestCase):
 
     def testFillOrKillBuyWithLowPrice(self):
         order = FillOrKillOrder("buy", self.amount, self.symbol, self.sell_price)
-        CancelledResponse(order.execute()).verify("FillOrKillWouldNotFill")
+        CancelledInFullResponse(order.execute()).verify("FillOrKillWouldNotFill")
 
     def testFillOrKillSellWithHighPrice(self):
         order = FillOrKillOrder("sell", self.amount, self.symbol, self.buy_price)
-        CancelledResponse(order.execute()).verify("FillOrKillWouldNotFill")
+        CancelledInFullResponse(order.execute()).verify("FillOrKillWouldNotFill")
 
     def testFillOrKillWithNegativePrice(self):
         order = FillOrKillOrder("sell", self.amount, self.symbol, "-1")
@@ -42,7 +42,7 @@ class Test1(unittest.TestCase):
 
     @classmethod
     def tearDownClas(cls):
-        print("Fini! We'll pretent we cancelled all open orders and closed the session.")
+        print("Fini! We'll pretend we cancelled all open orders and closed the session.")
 
 
 if __name__ == '__main__':
