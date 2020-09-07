@@ -11,25 +11,15 @@ class Order:
     MOCKISH_BASE_URL = "http://users.bestweb.net/~mcdonnel"
     ENDPOINT = "/v1/order/new"
     URL = BASE_URL + ENDPOINT
-
-    """ Parameters from https://docs.gemini.com/rest-api/#new-order , but not in order here """
-    side = ""
-    amount = ""
-    symbol = ""
-    price = ""
-    order_type = ""  # use order_prefix to avoid confusion with built-in
-    options = []
-    request = "/v1/order/new"
-    nonce = 0
-    client_order_id = ""
-    min_amount = ""
-    stop_price = ""
-    # not bothering with account since that is only for master API keys
     API_KEY = open("key.txt", "r").read()
     API_SECRET = open("secret.txt", "r").read().encode()
 
+    # Class variables which don't change
+    request = "/v1/order/new"
+
     def __init__(self, side, amount, symbol, price, order_type, options, min_amount='', stop_price='',
                  client_order_id=''):
+        """ Parameters from https://docs.gemini.com/rest-api/#new-order , but not in order here """
         self.side = side.lower()
         self.amount = amount
         self.symbol = symbol.lower()
@@ -51,6 +41,7 @@ class Order:
         Returns:
             A dictionary containing the response.
         """
+        self.payload = payload
         encoded_payload = json.dumps(payload).encode()
         b64 = base64.b64encode(encoded_payload)
         signature = hmac.new(self.API_SECRET, b64, hashlib.sha384).hexdigest()
@@ -281,7 +272,7 @@ class ExecutedInFullResponse(Response):
         # The 'result' key is only present if there is an error.
         assert "result" not in  self.raw, "Unexpected result in response: self.raw['result']}"
         # is_cancelled should be false.
-        assert not self.raw["is_cancelled"], f"Response was unexpectedly cancelled"
+        assert not self.raw["is_cancelled"], f"Response was unexpectedly cancelled."
         # executed_amount must be positive
         assert float(self.raw['executed_amount']) > 0, \
             f"Non-positive executed_amount: {self.raw['executed_amount']}"
