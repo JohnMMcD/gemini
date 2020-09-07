@@ -2,7 +2,7 @@ from order import *
 import unittest
 
 
-class Test1(unittest.TestCase):
+class TestFillOrKillOO(unittest.TestCase):
     amount = "0.01"
     symbol = "btcusd"
     buy_price = "16000"
