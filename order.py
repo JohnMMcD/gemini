@@ -11,9 +11,10 @@ class Order:
     MOCKISH_BASE_URL = "http://users.bestweb.net/~mcdonnel"
     ENDPOINT = "/v1/order/new"
     URL = BASE_URL + ENDPOINT
-    API_KEY = open("key.txt", "r").read()
-    API_SECRET = open("secret.txt", "r").read().encode()
-
+    with open('key.txt') as f:
+        API_KEY = f.read()
+    with open('secret.txt') as f:
+        API_SECRET = f.read().encode()
     # Class variables which don't change
     request = "/v1/order/new"
 
