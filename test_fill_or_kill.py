@@ -7,13 +7,7 @@ class TestFillOrKill(unittest.TestCase):
     currency = "btcusd"
     buy_price = "16000"
     sell_price = "1.01"
-    """ List from https://docs.gemini.com/rest-api/#order-status , but some at this link are optional  """
-    mandatory_fields = ["order_id", "symbol", "exchange", "price",
-                        "avg_execution_price", "side", "type", "options",
-                        "timestamp", "timestampms", "is_live",
-                        "is_cancelled", "was_forced",
-                        "executed_amount", "remaining_amount",
-                        "original_amount", "is_hidden"]
+
     # Errors are considerably more terse, and the fields are different.
     mandatory_error_fields = ["result", "reason", "message"]
     type = "exchange limit"
@@ -69,7 +63,6 @@ class TestFillOrKill(unittest.TestCase):
 
         return True
 
-
     def verify_error(self, response, reason):
         """
         Verifies the response had the expected error, and the reason matched.
@@ -89,18 +82,15 @@ class TestFillOrKill(unittest.TestCase):
         self.assertNotIn("is_cancelled", response, f"Unexpected cancellation because of {response['reason']}")
         return True
 
-
     def verify_response_basics(self, response):
         # Check the keys which must be present. Their values will be verified separately.
-        for key in self.mandatory_fields:
+        for key in gemini.mandatory_fields:
             self.assertIn(key, response, f"Missing {key} key in response")
         self.assertEqual(response['exchange'], 'gemini',
                          f'Order Executed on wrong exchange??')
         self.assertFalse(response['was_forced'], "'Will always be false'")
         # This part is specific to fill-and-kill orders
         self.assertFalse(response['is_live'], "Fill or kill order should not still be live")
-
-
 
     def verify_cancelled(self, response, amount, reason):
         """
@@ -126,13 +116,11 @@ class TestFillOrKill(unittest.TestCase):
         self.assertEqual(response['remaining_amount'], amount, "Order was partially filled!")
         return True
 
-
     def testBuyNormal(self):
         side = "buy"
         response = gemini.transact(self.amount, self.currency, self.buy_price, side, self.type, self.options)
         self.verify_response_basics(response)
         self.verify_executed(response, self.amount, self.currency, self.buy_price, side, self.type, self.options)
-
 
     def testSellNormal(self):
         side = "sell"
@@ -140,13 +128,11 @@ class TestFillOrKill(unittest.TestCase):
         self.verify_response_basics(response)
         self.verify_executed(response, self.amount, self.currency, self.sell_price, side, self.type, self.options)
 
-
     def testBuyTooCheap(self):
         side = "buy"
         response = gemini.transact(self.amount, self.currency, self.sell_price, side, self.type, self.options)
         self.verify_response_basics(response)
         self.verify_cancelled(response, self.amount, self.cancel_reason)
-
 
     def testSellTooHigh(self):
         side = "sell"
@@ -154,23 +140,21 @@ class TestFillOrKill(unittest.TestCase):
         self.verify_response_basics(response)
         self.verify_cancelled(response, self.amount, self.cancel_reason)
 
-
     def testBuyWayTooMuch(self):
         """Verify that buy transactions which would break the exchange given an error."""
         side = "buy"
         response = gemini.transact(self.amount_way_too_high, self.currency,
                                    gemini.DICT_BIDASK[self.currency]['ask'], side, self.type, self.options)
-        #self.verify_response_basics(response)
+        # self.verify_response_basics(response)
         self.verify_error(response, 'InvalidQuantity')
-
 
     def testSellWayTooMuch(self):
         """Verify that sell transactions which would break the exchange given an error."""
         side = "sell"
-        response = gemini.transact(self.amount_way_too_high, self.currency, self.sell_price, side, self.type, self.options)
+        response = gemini.transact(self.amount_way_too_high, self.currency, self.sell_price, side, self.type,
+                                   self.options)
         # self.verify_response_basics(response)
         self.verify_error(response, 'InvalidQuantity')
-
 
     def testBuySlightlyTooMuch(self):
         """Verify that transactions which are too large to be completed are killed."""
@@ -180,10 +164,10 @@ class TestFillOrKill(unittest.TestCase):
         self.verify_response_basics(response)
         self.verify_cancelled(response, self.amount_slightly_too_high, self.cancel_reason)
 
-
     def testSellSlightlyTooMuch(self):
         side = "sell"
-        response = gemini.transact(self.amount_slightly_too_high, self.currency, self.sell_price, side, self.type, self.options)
+        response = gemini.transact(self.amount_slightly_too_high, self.currency, self.sell_price, side, self.type,
+                                   self.options)
         self.verify_response_basics(response)
         self.verify_cancelled(response, self.amount_slightly_too_high, self.cancel_reason)
 

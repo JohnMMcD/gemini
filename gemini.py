@@ -8,6 +8,7 @@ import datetime, time
 # Constant-ish attributes
 BASE_URL = "https://api.sandbox.gemini.com"
 MOCKISH_BASE_URL = "http://users.bestweb.net/~mcdonnel"
+ENDPOINT = "/v1/order/new"
 
 """
 MOCKISH_BASE_URL requires explanation. The solution said, 
@@ -28,7 +29,7 @@ commented it out. The data / text files are in the repository.
 * currently, only btcusd, ethusd, and ethbtc are supported.
 """
 
-ENDPOINT = "/v1/order/new"
+
 URL = BASE_URL + ENDPOINT
 
 """ The list of valid currencies. """
@@ -107,6 +108,13 @@ SIDE_REGEX = "buy|sell"
 API_KEY = open("key.txt", "r").read()
 API_SECRET = open("secret.txt", "r").read().encode()
 
+""" List from https://docs.gemini.com/rest-api/#order-status , but some at this link are optional  """
+mandatory_fields = ["order_id", "symbol", "exchange", "price",
+                    "avg_execution_price", "side", "type", "options",
+                    "timestamp", "timestampms", "is_live",
+                    "is_cancelled", "was_forced",
+                    "executed_amount", "remaining_amount",
+                    "original_amount", "is_hidden"]
 
 class NSFError(Exception):
     pass
