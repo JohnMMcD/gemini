@@ -1,9 +1,21 @@
 # Purpose
-If you're reading this, you should know this repository's purpose.
+Testing the order_new API without involving any other API endpoints.
 
 # Dependencies
 
-* behave module
+These modules are used:
+* behave
+* unittest
+
+As well as these modules, as used in the sample:
+* requests
+* json
+* base64
+* hmac
+* hashlib
+* datetime, time
+
+Also, this retrieves data from a third-party web site; see MOCKISH_BASE_URL for details.
 
 # Assumptions
 
@@ -22,7 +34,7 @@ If you're reading this, you should know this repository's purpose.
 
 # Issues
 
-* The session is making testing the test scripts harder. I'm getting unwanted SelfCrossPrevented errors due to running the same test repeatedly. I want a way to clear out the session state but I can't because /order/cancel/session is unavailable.
+* The session is making testing the test scripts harder. I'm getting unwanted SelfCrossPrevented errors due to running the same test repeatedly. I want a way to clear out the session state but I can't because /order/cancel/session is prohibited.
 * My choice of language and libraries limits my characters to those in the latin-1 set; I'm getting a "UnicodeEncodeError: 'latin-1' codec can't encode characters in position 0-1: ordinal not in range(256)", which is [well-known](https://stackoverflow.com/questions/34618149/post-unicode-string-to-web-service-using-python-requests-library), and encoding the values in UTF-8 makes them not serializable. So I'm omitting positive and negative tests for non-Latin-1 characters.
 
 # TODOs
