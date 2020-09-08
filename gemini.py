@@ -17,16 +17,19 @@ a lot of scenarios where it's difficult to create realistic test orders without
 access to data from these endpoints. E.g., if you don't know the bid
 and ask from pubticker/MYSYMBOL, you won't know whether a fill-or-kill order
 should be filled. So I hit a few of the public "do not invoke" APIs and saved
-a few* of the outputs to a site I control, http://users.bestweb.net/~mcdonnel
+a few* of the outputs to a site I control, http://users.bestweb.net/~mcdonnel/v1/... ,
 and make requests to that instead of the public API. It's not perfect, because
 the sandbox is dynamic, but it's better than hardcoding the bid/ask values everywhere. 
+
+I have not ported this to the object-oriented style because I wasn't sure if making
+external requests was allowed (and also to save time), so in those I use hardcoded values. 
 
 Another idea would be to use a mock. Yet another idea would be to use
 text files and store the values in that, but the code which parses those
 files is ugly. I implemented this for a few methods, and left the code below, but
 commented it out. The data / text files are in the repository.
 
-* currently, only btcusd, ethusd, and ethbtc are supported.
+* currently, only btcusd, ethusd, and ethbtc are saved.
 """
 
 
