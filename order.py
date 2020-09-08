@@ -5,6 +5,7 @@ import hmac
 import hashlib
 import datetime
 import time
+from os import path
 
 
 class Order:
@@ -12,6 +13,10 @@ class Order:
     BASE_URL = "https://api.sandbox.gemini.com"
     ENDPOINT = "/v1/order/new"
     URL = BASE_URL + ENDPOINT
+    if not path.exists("key.txt"):
+        assert False, "key.txt file must exist in the root directory - see the README.MD"
+    if not path.exists("secret.txt"):
+        assert False, "secret.txt file must exist in the root directory - see the README.MD"
     with open('key.txt') as f:
         API_KEY = f.read()
     with open('secret.txt') as f:
