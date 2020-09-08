@@ -1,6 +1,6 @@
 from response import *
-
 import unittest
+import logging
 
 
 class TestImmediateOrCancel(unittest.TestCase):
@@ -20,6 +20,7 @@ class TestImmediateOrCancel(unittest.TestCase):
     # An amount that is *possible* to fill in one order, but the order book probably isn't deep enough
     amount_which_can_be_partially_filled = "9999"
     best_guess = 0.0
+    logger = logging.getLogger(__name__)
 
     def testImmediateOrCancelBuyWithHighPrice(self):
         """Verify that your basic buy is executed in full."""
@@ -63,50 +64,22 @@ class TestImmediateOrCancel(unittest.TestCase):
          # remaining_amount==1
          # original_amount==3
          # is_cancelled==true
-        
-        Another solution, shown below, uses a Fibonacci search with a lot of FoK orders to determine the prices. 
-        Start at a high price, then decrease the price until you go too low and the order get cancelled.
-        When that happens, increase the price until it gets filled. Limit the price swings to a percentage of 
-        the difference between the highest failed price and the lowest successful price. When the difference 
-        is small enough, declare that the best price, and do the big order, which hopefully will be partially filled.
+
+        See the implementation of guessCurrentMarket for what I actually did.
         """
-        initial_guess = float(self.buy_price)
-        last_guess = 0
-        next_delta = 100
-        count = 0
-        lowest_worked = initial_guess
-        highest_failed = last_guess
-        current_guess = initial_guess
-        close_enough = False
-        while not close_enough:
-            response = FillOrKillOrder("buy", self.amount, self.symbol, str(current_guess)).execute()
-            if response['is_cancelled']:
-                highest_failed = current_guess
-                current_guess = current_guess + next_delta
-            else:
-                lowest_worked = current_guess
-                current_guess = current_guess - next_delta
-            count = count + 1
-            spread = abs(highest_failed - lowest_worked)
-            next_delta = round(max(spread * 0.33, 0.01), 2)
-            current_guess = round(current_guess, 2)
-            print(f"count={count} next_delta={str(next_delta)}")
-            if abs(last_guess - current_guess) < 0.02:
-                close_enough = True
-            last_guess = current_guess
+        current_guess = self.guessCurrentMarket()
         # Give it a small bump to increase the odds that it will be partially filled
-        self.best_guess = round(current_guess * 1.000005, 2)
-        print(f"self.best_guess={self.best_guess} count={str(count)}")
+        self.best_guess = round(current_guess * 1.0005, 2)
         partial_response = ImmediateOrCancelOrder("buy", "2", self.symbol, str(self.best_guess)).execute()
         fields = ['executed_amount', 'avg_execution_price', 'remaining_amount', 'original_amount',
                   'is_cancelled', 'result', 'reason', 'message']
         for field in fields:
             if field in partial_response:
-                print(f"{field}={partial_response[field]}")
+                self.logger.debug(f"{field}={partial_response[field]}")
         assert partial_response['is_cancelled'], "PartialBuy should be cancelled but wasn't."
-        assert float(partial_response['execution_amount']) > 0.0, \
-            f"Incorrect execution amount: {partial_response['execution_amount']}"
-        print("done with PartialBuy")
+        assert float(partial_response['executed_amount']) > 0.0, \
+            f"Incorrect executed_amount: {partial_response['executed_amount']}"
+        self.logger.debug("done with PartialBuy")
 
     def testImmediateOrCancelPartialSell(self):
         """ Verify that sells which are slightly too large to be completed are partially filled.
@@ -121,45 +94,20 @@ class TestImmediateOrCancel(unittest.TestCase):
         # original_amount=3
         # is_cancelled==true
 
-        We reuse the algorithm from the partial buy.
         """
-        initial_guess = float(self.buy_price)
-        last_guess = 0
-        next_delta = 100
-        count = 0
-        lowest_worked = initial_guess
-        highest_failed = last_guess
-        current_guess = initial_guess
-        close_enough = False
-        while not close_enough:
-            response = FillOrKillOrder("buy", self.amount, self.symbol, str(current_guess)).execute()
-            if response['is_cancelled']:
-                highest_failed = current_guess
-                current_guess = current_guess + next_delta
-            else:
-                lowest_worked = current_guess
-                current_guess = current_guess - next_delta
-            count = count + 1
-            spread = abs(highest_failed - lowest_worked)
-            next_delta = round(max(spread * 0.33, 0.01), 2)
-            current_guess = round(current_guess, 2)
-            print(f"count={count} next_delta={str(next_delta)}")
-            if abs(last_guess - current_guess) < 0.02:
-                close_enough = True
-            last_guess = current_guess
+        current_guess = self.guessCurrentMarket()
         # Give it a small bump down to increase the odds that it will be partially filled
-        self.best_guess = round(current_guess * 0.999995, 2)
-        print(f"self.best_guess={self.best_guess} count={str(count)}")
+        self.best_guess = round(current_guess * 0.99995, 2)
         partial_response = ImmediateOrCancelOrder("sell", "2", self.symbol, str(self.best_guess)).execute()
         fields = ['executed_amount', 'avg_execution_price', 'remaining_amount', 'original_amount',
                   'is_cancelled', 'result', 'reason', 'message']
         for field in fields:
             if field in partial_response:
-                print(f"{field}={partial_response[field]}")
+                self.logger.debug(f"{field}={partial_response[field]}")
         assert partial_response['is_cancelled'], "PartialSell should be cancelled but wasn't."
-        assert float(partial_response['execution_amount']) > 0.0, \
-            f"Incorrect execution amount: {partial_response['execution_amount']}"
-        print("done with PartialSell")
+        assert float(partial_response['executed_amount']) > 0.0, \
+            f"Incorrect executed_amount: {partial_response['executed_amount']}"
+        self.logger.debug("done with PartialSell")
 
     def testImmediateOrCancelWithNegativePrice(self):
         """Verify that sells with a negative price give an error."""
@@ -171,13 +119,59 @@ class TestImmediateOrCancel(unittest.TestCase):
         order = ImmediateOrCancelOrder("sell", self.amount, self.symbol, "0")
         ErrorResponse(order.execute()).verify("InvalidPrice")
 
+    def guessCurrentMarket(self):
+        """
+        Use a binary search with FoK buy orders to determine the current market price.
+        Start at a high price (which should be high enough to be filled), then use a low price (which should be killed).
+        Then take a price in the middle and do another order. If filled, set it as the new high; if killed, the new low.
+        Repeat until the difference between high and low is small enough, then declare that the best price.
+
+        TODO: replace with a call to /v1/pubticker/btcusd and the 'last' field.
+        Returns:
+            A floating point number, which should be very close to the market price.
+        """
+        lowest_worked = float(self.buy_price)
+        highest_failed = float(self.sell_price)
+
+        current_guess = lowest_worked
+        last_guess = highest_failed
+        close_enough = False
+        count = 0
+        while not close_enough:
+            response = FillOrKillOrder("buy", self.amount, self.symbol, str(current_guess)).execute()
+            if response['is_cancelled']:
+                highest_failed = current_guess
+                self.logger.debug(f"current_guess too low: {str(current_guess)}")
+            else:
+                lowest_worked = current_guess
+                self.logger.debug(f"current_guess too hih: {str(current_guess)}")
+            count = count + 1
+            current_guess = round((highest_failed + lowest_worked) / 2, 2)
+            self.logger.info(f"count={count} last_guess={str(last_guess)} current_guess={str(current_guess)}")
+            if abs(last_guess - current_guess) < 0.02:
+                close_enough = True
+            last_guess = current_guess
+        return current_guess
+
     @classmethod
     def setUpClass(cls):
-        print("Let's get going! We'll pretend we are starting a new session.")
+        # Mostly from https://docs.python.org/3/howto/logging-cookbook.html
+        logging.basicConfig(level=logging.INFO)
+        fh = logging.FileHandler("./reports/" + __name__ + ".log")
+        fh.setLevel(logging.DEBUG)
+        ch = logging.StreamHandler()
+        ch.setLevel(logging.INFO)
+        file_formatter = logging.Formatter('%(asctime)s : %(levelno)s : %(funcName)s : %(message)s')
+        screen_formatter = logging.Formatter('%(asctime)s : %(levelno)s : %(name)s : %(message)s')
+        fh.setFormatter(file_formatter)
+        ch.setFormatter(screen_formatter)
+        cls.logger.addHandler(fh)
+        cls.logger.addHandler(ch)
+        cls.logger.info("Let's get going! We'll pretend we are starting a new session.")
 
     @classmethod
     def tearDownClass(cls):
-        print("Finished! We'll pretend we cancelled all open orders and closed the session.")
+        cls.logger.info("Finished! We'll pretend we cancelled all open orders and closed the session.")
 
 
 if __name__ == '__main__':
