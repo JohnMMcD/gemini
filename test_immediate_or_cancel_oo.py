@@ -1,4 +1,5 @@
 from response import *
+from order import *
 import unittest
 import logging
 
@@ -69,7 +70,7 @@ class TestImmediateOrCancel(unittest.TestCase):
         """
         current_guess = self.guess_current_market()
         # Give it a small bump to increase the odds that it will be partially filled
-        self.best_guess = round(current_guess * 1.0005, 2)
+        self.best_guess = round(current_guess * 1.005, 2)
         partial_response = ImmediateOrCancelOrder("buy", "2", self.symbol, str(self.best_guess)).execute()
         fields = ['executed_amount', 'avg_execution_price', 'remaining_amount', 'original_amount',
                   'is_cancelled', 'result', 'reason', 'message']
@@ -98,7 +99,7 @@ class TestImmediateOrCancel(unittest.TestCase):
         """
         current_guess = self.guess_current_market()
         # Give it a small bump down to increase the odds that it will be partially filled
-        self.best_guess = round(current_guess * 0.99995, 2)
+        self.best_guess = round(current_guess * 0.995, 2)
         partial_response = ImmediateOrCancelOrder("sell", "2", self.symbol, str(self.best_guess)).execute()
         fields = ['executed_amount', 'avg_execution_price', 'remaining_amount', 'original_amount',
                   'is_cancelled', 'result', 'reason', 'message']
@@ -122,38 +123,17 @@ class TestImmediateOrCancel(unittest.TestCase):
 
     def guess_current_market(self):
         """
-        Use a binary search with FoK buy orders to determine the current market price.
-        Start at a high price (which should be high enough to be filled), then use a low price (which should be killed).
-        Then take a price in the middle and do another order. If filled, set it as the new high; if killed, the new low.
-        Repeat until the difference between high and low is small enough, then declare that the best price.
+        Do a small fill or kill order to get the market price.
 
         TODO: replace with a call to /v1/pubticker/btcusd and the 'last' field.
         Returns:
             A floating point number, which should be very close to the market price.
         """
-        self.logger.info("Rube Goldberg finds the market price with one API")
-        lowest_worked = float(self.buy_price)
-        highest_failed = float(self.sell_price)
-
-        current_guess = lowest_worked
-        last_guess = highest_failed
-        close_enough = False
-        count = 0
-        while not close_enough:
-            response = FillOrKillOrder("buy", self.amount, self.symbol, str(current_guess)).execute()
-            if response['is_cancelled']:
-                highest_failed = current_guess
-                self.logger.debug(f"current_guess too low: {str(current_guess)}")
-            else:
-                lowest_worked = current_guess
-                self.logger.debug(f"current_guess too hih: {str(current_guess)}")
-            count = count + 1
-            current_guess = round((highest_failed + lowest_worked) / 2, 2)
-            self.logger.info(f"count={count} last_guess={str(last_guess)} current_guess={str(current_guess)}")
-            if abs(last_guess - current_guess) < 0.02:
-                close_enough = True
-            last_guess = current_guess
-        return current_guess
+        order = FillOrKillOrder("buy", self.amount, self.symbol, self.buy_price)
+        response = ExecutedInFullResponse(order.execute())
+        price = response.get_avg_execution_price()
+        self.logger.debug(f"Market price should be {price}")
+        return float(price)
 
     @classmethod
     def setUpClass(cls):
