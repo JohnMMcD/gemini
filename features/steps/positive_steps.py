@@ -30,7 +30,7 @@ def step_impl(context):
         print(context.response)
 
 
-@then('the order will not be cancelled')
+@then('the order will be executed in full')
 def step_impl(context):
     ExecutedInFullResponse(context.response).verify(context.order)
 

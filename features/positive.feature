@@ -11,7 +11,7 @@ Feature: Positive Testcases (those that should succeed) with exchange-limit imme
 	| amount | currency |     price |
 	|    0.1 |   BTCUsd |  12000.01 |
 	|    1.0 |   ethUSD |    300.01 |
-    Then the order will not be cancelled
+    Then the order will be executed in full
 
   Scenario: Table-driven sells
     Given we have enough funds
@@ -19,7 +19,7 @@ Feature: Positive Testcases (those that should succeed) with exchange-limit imme
 	| amount | currency |     price |
 	|    0.1 |   BTCUsd |   9000.01 |
 	|    1.0 |   ethUSD |    100.01 |
-    Then the order will not be cancelled
+    Then the order will be executed in full
 
   Scenario: Table-driven buy or sell
     Given we have enough funds
@@ -27,7 +27,7 @@ Feature: Positive Testcases (those that should succeed) with exchange-limit imme
 	|  side | amount | currency |    price |
 	|   buy |    0.1 |   BTCUsd | 12000.01 |
 	|  sell |    1.0 |   ethUSD |   100.01 |
-    Then the order will not be cancelled
+    Then the order will be executed in full
 
   Scenario: Table-driven buy or sell that will be cancelled
     Given we have enough funds
