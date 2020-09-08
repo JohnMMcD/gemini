@@ -22,37 +22,37 @@ class TestImmediateOrCancel(unittest.TestCase):
     best_guess = 0.0
     logger = logging.getLogger(__name__)
 
-    def testImmediateOrCancelBuyWithHighPrice(self):
+    def test_buy_with_high_price(self):
         """Verify that your basic buy is executed in full."""
         order = ImmediateOrCancelOrder("buy", self.amount, self.symbol, self.buy_price)
         ExecutedInFullResponse(order.execute()).verify(order)
 
-    def testImmediateOrCancelSellWithLowPrice(self):
+    def test_sell_with_low_price(self):
         """Verify that your basic sell is executed in full."""
         order = ImmediateOrCancelOrder("sell", self.amount, self.symbol, self.sell_price)
         ExecutedInFullResponse(order.execute()).verify(order)
 
-    def testImmediateOrCancelBuyWithLowPrice(self):
+    def test_buy_with_low_price(self):
         """Verify that buying with a price that's too low gets cancelled."""
         order = ImmediateOrCancelOrder("buy", self.amount, self.symbol, self.sell_price)
         CancelledInFullResponse(order.execute()).verify(order, reason="ImmediateOrCancelWouldPost")
 
-    def testImmediateOrCancelSellWithHighPrice(self):
+    def test_sell_with_high_price(self):
         """Verify that selling with a price that's too high gets cancelled."""
         order = ImmediateOrCancelOrder("sell", self.amount, self.symbol, self.buy_price)
         CancelledInFullResponse(order.execute()).verify(order, reason="ImmediateOrCancelWouldPost")
 
-    def testImmediateOrCancelBuyWayTooMuch(self):
+    def test_buy_way_too_much(self):
         """Verify that buys which are way too large to be completed throw an error."""
         order = ImmediateOrCancelOrder("buy", self.amount_way_too_high, self.symbol, self.buy_price)
         ErrorResponse(order.execute()).verify("InvalidQuantity")
 
-    def testImmediateOrCancelSellWayTooMuch(self):
+    def test_sell_way_too_much(self):
         """Verify that sells which are way too large to be completed throw an error."""
         order = ImmediateOrCancelOrder("sell", self.amount_way_too_high, self.symbol, self.sell_price)
         ErrorResponse(order.execute()).verify("InvalidQuantity")
 
-    def testImmediateOrCancelPartialBuy(self):
+    def test_partial_buy(self):
         """ Verify that buys which are slightly too large to be completed are partially filled.
 
         What I would do if allowed access to the order book is:
@@ -65,9 +65,9 @@ class TestImmediateOrCancel(unittest.TestCase):
          # original_amount==3
          # is_cancelled==true
 
-        See the implementation of guessCurrentMarket for what I actually did. Or don't - it's not pretty.
+        See the implementation of guess_current_market for what I actually did. Or don't - it's not pretty.
         """
-        current_guess = self.guessCurrentMarket()
+        current_guess = self.guess_current_market()
         # Give it a small bump to increase the odds that it will be partially filled
         self.best_guess = round(current_guess * 1.0005, 2)
         partial_response = ImmediateOrCancelOrder("buy", "2", self.symbol, str(self.best_guess)).execute()
@@ -81,7 +81,7 @@ class TestImmediateOrCancel(unittest.TestCase):
             f"Incorrect executed_amount: {partial_response['executed_amount']}"
         self.logger.debug("done with PartialBuy")
 
-    def testImmediateOrCancelPartialSell(self):
+    def test_partial_sell(self):
         """ Verify that sells which are slightly too large to be completed are partially filled.
 
         What I would do if allowed access to the order book is:
@@ -94,9 +94,9 @@ class TestImmediateOrCancel(unittest.TestCase):
         # original_amount=3
         # is_cancelled==true
 
-        See the implementation of guessCurrentMarket for what I actually did.
+        See the implementation of guess_current_market for what I actually did.
         """
-        current_guess = self.guessCurrentMarket()
+        current_guess = self.guess_current_market()
         # Give it a small bump down to increase the odds that it will be partially filled
         self.best_guess = round(current_guess * 0.99995, 2)
         partial_response = ImmediateOrCancelOrder("sell", "2", self.symbol, str(self.best_guess)).execute()
@@ -110,17 +110,17 @@ class TestImmediateOrCancel(unittest.TestCase):
             f"Incorrect executed_amount: {partial_response['executed_amount']}"
         self.logger.debug("done with PartialSell")
 
-    def testImmediateOrCancelWithNegativePrice(self):
+    def test_with_negative_price(self):
         """Verify that sells with a negative price give an error."""
         order = ImmediateOrCancelOrder("sell", self.amount, self.symbol, "-1")
         ErrorResponse(order.execute()).verify("InvalidPrice")
 
-    def testImmediateOrCancelWithZeroPrice(self):
+    def test_with_zero_price(self):
         """Verify that sells with a zero price give an error."""
         order = ImmediateOrCancelOrder("sell", self.amount, self.symbol, "0")
         ErrorResponse(order.execute()).verify("InvalidPrice")
 
-    def guessCurrentMarket(self):
+    def guess_current_market(self):
         """
         Use a binary search with FoK buy orders to determine the current market price.
         Start at a high price (which should be high enough to be filled), then use a low price (which should be killed).
