@@ -8,7 +8,7 @@ class AuctionOnlyOO(unittest.TestCase):
     Since the "Get Active Orders" endpoint is prohibited, there's no way to verify these get sent to the auction.
 
     However, as I write this, all these are throwing "AuctionNotOpen" errors, despite
-    https://docs.sandbox.gemini.com/rest-api/#sandbox saying "hourly auctions."
+    https://docs.sandbox.gemini.com/rest-api/#sandbox saying "hourly auctions." Bug?
     """
     amount = "0.01"
     symbol = "btcusd"
@@ -71,7 +71,7 @@ class AuctionOnlyOO(unittest.TestCase):
         ch.setLevel(logging.INFO)
         ch.setFormatter(logging.Formatter(verbose_format))
         cls.logger.addHandler(ch)
-        cls.logger.info("Let's start filling and killing! We'll pretend we are starting a new session.")
+        cls.logger.info("Paddles at the ready! We'll pretend we are starting a new session.")
 
     @classmethod
     def tearDownClass(cls):
