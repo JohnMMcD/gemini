@@ -1,8 +1,6 @@
-from order import *
 from response import *
-
 import unittest
-
+import logging
 
 class TestFillOrKillOO(unittest.TestCase):
     amount = "0.01"
@@ -13,6 +11,12 @@ class TestFillOrKillOO(unittest.TestCase):
     amount_way_too_high = "9999999999"
     # An amount that is *possible* to fill in one order, but the order book probably isn't deep enough
     amount_slightly_too_high = "9999"
+    logger = logging.getLogger(__name__)
+
+    @unittest.skip("for testing logging")
+    def test_logger(self):
+        self.logger.info("self.logger.info test_logger")
+        self.logger.debug("self.logger.debug test_logger")
 
     def testFillOrKillBuyWithHighPrice(self):
         """Verify that your basic buy is executed in full."""
@@ -71,11 +75,24 @@ class TestFillOrKillOO(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        print("Let's get going! We'll pretend we are starting a new session.")
+        # Mostly from https://docs.python.org/3/howto/logging-cookbook.html
+        logging.basicConfig(level=logging.INFO)
+        fh = logging.FileHandler("./reports/" + __name__ + ".log")
+        fh.setLevel(logging.DEBUG)
+        ch = logging.StreamHandler()
+        ch.setLevel(logging.INFO)
+        file_formatter = logging.Formatter('%(asctime)s : %(levelno)s : %(funcName)s : %(message)s')
+        screen_formatter = logging.Formatter('%(asctime)s : %(levelno)s : %(name)s : %(message)s')
+        fh.setFormatter(file_formatter)
+        ch.setFormatter(screen_formatter)
+        cls.logger.addHandler(fh)
+        cls.logger.addHandler(ch)
+        cls.logger.info("Let's get going! We'll pretend we are starting a new session.")
+
 
     @classmethod
     def tearDownClass(cls):
-        print("Fini! We'll pretend we cancelled all open orders and closed the session.")
+        cls.logger.info("Fini! We'll pretend we cancelled all open orders and closed the session.")
 
 
 if __name__ == '__main__':
