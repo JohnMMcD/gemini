@@ -28,7 +28,12 @@ class Order:
         self.options = options
         self.min_amount = min_amount
         self.stop_price = stop_price
-        self.client_order_id = client_order_id
+        if client_order_id:
+            self.client_order_id = client_order_id
+        else:
+            t = datetime.datetime.now()
+            nonce = str(99999999999999999 + int(time.mktime(t.timetuple()) * 1000))
+            self.client_order_id = "hire_jmcdonne_" + nonce
         self.payload = {}  # gets populated when executed
 
     def execute_payload(self, payload):
@@ -96,6 +101,7 @@ class Order:
             "price": self.price,
             "side": self.side,
             "type": self.order_type,
+            "client_order_id": self.client_order_id,
             "options": self.options
         }
         # Add optional parameters
@@ -103,8 +109,6 @@ class Order:
             payload['stop_price'] = self.stop_price
         if self.min_amount:
             payload['min_amount'] = self.min_amount
-        if self.client_order_id:
-            payload['client_order_id'] = self.client_order_id
 
         #        print(f"Payload: {str(payload)}")
         return self.execute_payload(payload)
