@@ -1,5 +1,4 @@
 from behave import *
-from order import *
 from response import *
 
 
@@ -33,11 +32,9 @@ def step_impl(context):
 
 @then('the order will not be cancelled')
 def step_impl(context):
-    assert ExecutedInFullResponse(context.response).verify(context.order), \
-        "Order should have been executed in full but wasn't."
+    ExecutedInFullResponse(context.response).verify(context.order)
 
 
-@then('the order will be cancelled')
-def step_impl(context):
-    assert CancelledInFullResponse(context.response).verify(context.order),\
-        "Order should have been cancelled but wasn't."
+@then('the order will be cancelled with (?P<reason>\w+)')
+def step_impl(context, reason):
+    CancelledInFullResponse(context.response).verify(reason)
