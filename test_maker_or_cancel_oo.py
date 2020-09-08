@@ -70,7 +70,7 @@ class TestMakerOrCancel(unittest.TestCase):
         ch.setLevel(logging.INFO)
         ch.setFormatter(logging.Formatter(verbose_format))
         cls.logger.addHandler(ch)
-        cls.logger.info("Let's start filling and killing! We'll pretend we are starting a new session.")
+        cls.logger.info("Let's maker something happen! We'll pretend we are starting a new session.")
 
     @classmethod
     def tearDownClass(cls):
