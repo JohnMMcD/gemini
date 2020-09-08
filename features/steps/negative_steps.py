@@ -10,7 +10,6 @@ use_step_matcher("re")
 def step_impl(context):
     pass
 
-
 @then('the order will give the error (?P<expected_reason>(?i)\w+)')
 def step_impl(context, expected_reason):
     assert ErrorResponse(context.response).verify(expected_reason), \
