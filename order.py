@@ -3,20 +3,19 @@ import json
 import base64
 import hmac
 import hashlib
-import datetime, time
+import datetime
+import time
+
 
 class Order:
     # Constant-ish attributes
     BASE_URL = "https://api.sandbox.gemini.com"
-    MOCKISH_BASE_URL = "http://users.bestweb.net/~mcdonnel"
     ENDPOINT = "/v1/order/new"
     URL = BASE_URL + ENDPOINT
     with open('key.txt') as f:
         API_KEY = f.read()
     with open('secret.txt') as f:
         API_SECRET = f.read().encode()
-    # Class variables which don't change
-    request = "/v1/order/new"
 
     def __init__(self, side, amount, symbol, price, order_type, options, min_amount='', stop_price='',
                  client_order_id=''):
@@ -30,12 +29,13 @@ class Order:
         self.min_amount = min_amount
         self.stop_price = stop_price
         self.client_order_id = client_order_id
-        self.payload = {} # gets populated when executed
+        self.payload = {}  # gets populated when executed
 
     def execute_payload(self, payload):
         """ Executes the order with the given payload. This is at a lower level compared to
          the 'execute' method and can be called directly when non-standard or
-         non-compliant payloads are required.
+         specific non-compliant payloads are required (it doesn't handle all
+         non-compliant payloads).
 
         Args:
             payload: dictionary to send
@@ -61,7 +61,7 @@ class Order:
                            'X-GEMINI-SIGNATURE': signature,
                            'Content-Length': "0",
                            'Cache-Control': "no-cache"}
-        #print(f"Request headers: {str(request_headers)}")
+        # print(f"Request headers: {str(request_headers)}")
         # Had to put a sleep in here so the nonces would change
         time.sleep(2.0)
         response = requests.post(self.URL,
@@ -69,8 +69,8 @@ class Order:
                                  headers=request_headers)
 
         new_order_response = response.json()
-        #print(f"Response: {str(new_order_response)}")
-        return (new_order_response)
+        # print(f"Response: {str(new_order_response)}")
+        return new_order_response
 
     def execute(self):
         """ Executes an order with the current object.
@@ -106,7 +106,7 @@ class Order:
         if self.client_order_id:
             payload['client_order_id'] = self.client_order_id
 
-#        print(f"Payload: {str(payload)}")
+        #        print(f"Payload: {str(payload)}")
         return self.execute_payload(payload)
 
 
@@ -145,4 +145,3 @@ class AuctionOnlyOrder(ExchangeLimitOrder):
 class IndicationOfInterestOrder(ExchangeLimitOrder):
     def __init__(self, side, amount, symbol, price):
         ExchangeLimitOrder.__init__(self, side, amount, symbol, price, ['indication-of-interest'])
-
