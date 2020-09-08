@@ -3,35 +3,36 @@
 # with BDD, or https://cucumber.io/docs/gherkin/reference/ for more
 # info on Gherkin syntax
 
-# WHAT ABOUT MARKET ORDERS?
-# The API doesn't directly support market orders because they provide
-# you with no price protection.
-# Instead, use the “immediate-or-cancel” order execution option, coupled
-# with an aggressive limit price (i.e. very high for a buy order or very
-# low for a sell order), to achieve the same result.
+Feature: Positive Testcases (those that should succeed) with exchange-limit immediate-or-cancel orders
 
-Feature: Positive Testcases (those that should succeed)
-
-  Scenario: Table-driven exchange-limit immediate-or-cancel buy order
+  Scenario: Table-driven buys
     Given we have enough funds
 	When we buy currency from this table
-	| amount | currency |  price |
-	|    0.1 |   BTCUsd | 999999 |
-	|    0.1 |   ethUSD | 999999 |
+	| amount | currency |     price |
+	|    0.1 |   BTCUsd |  12000.01 |
+	|    0.1 |   ethUSD |    400.01 |
     Then the order will not be cancelled
 
-  Scenario: Table-driven exchange-limit immediate-or-cancel sell order
+  Scenario: Table-driven sells
     Given we have enough funds
 	When we sell currency from this table
-	| amount | currency |  price |
-	|    0.1 |   BTCUsd |   0.01 |
-	|    0.1 |   ethUSD |   0.01 |
+	| amount | currency |     price |
+	|    0.1 |   BTCUsd |   9000.01 |
+	|    0.1 |   ethUSD |    100.01 |
     Then the order will not be cancelled
 
-  Scenario: Table-driven exchange-limit immediate-or-cancel buy or sell
+  Scenario: Table-driven buy or sell
     Given we have enough funds
 	When we transact currency from this table
-	|  side | amount | currency |  price |
-	|   buy |    0.1 |   BTCUsd | 99999  |
-	|  sell |    0.1 |   ethUSD |    0.1 |
+	|  side | amount | currency |    price |
+	|   buy |    0.1 |   BTCUsd | 12000.01 |
+	|  sell |    0.1 |   ethUSD |   100.01 |
     Then the order will not be cancelled
+
+  Scenario: Table-driven buy or sell that will be cancelled
+    Given we have enough funds
+	When we transact currency from this table
+	|  side | amount | currency |    price |
+	|   buy |    0.1 |   BTCUsd |  8000.01 |
+	|  sell |    0.1 |   ethUSD |   400.01 |
+    Then the order will be cancelled with ImmediateOrCancelWouldPost
