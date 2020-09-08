@@ -27,12 +27,12 @@ class TestFillOrKillOO(unittest.TestCase):
     def testFillOrKillBuyWithLowPrice(self):
         """Verify that buying with a price that's too low gets cancelled."""
         order = FillOrKillOrder("buy", self.amount, self.symbol, self.sell_price)
-        CancelledInFullResponse(order.execute()).verify("FillOrKillWouldNotFill")
+        CancelledInFullResponse(order.execute()).verify(order, reason="FillOrKillWouldNotFill")
 
     def testFillOrKillSellWithHighPrice(self):
         """Verify that selling with a price that's too high gets cancelled."""
         order = FillOrKillOrder("sell", self.amount, self.symbol, self.buy_price)
-        CancelledInFullResponse(order.execute()).verify("FillOrKillWouldNotFill")
+        CancelledInFullResponse(order.execute()).verify(order, reason="FillOrKillWouldNotFill")
 
     def testFillOrKillBuyWayTooMuch(self):
         """Verify that buys which are way too large to be completed throw an error."""
@@ -47,12 +47,12 @@ class TestFillOrKillOO(unittest.TestCase):
     def testFillOrKillBuySlightlyTooMuch(self):
         """Verify that buys which are slightly too large to be completed are cancelled."""
         order = FillOrKillOrder("buy", self.amount_slightly_too_high, self.symbol, self.buy_price)
-        CancelledInFullResponse(order.execute()).verify("FillOrKillWouldNotFill")
+        CancelledInFullResponse(order.execute()).verify(order, reason="FillOrKillWouldNotFill")
 
     def testFillOrKillSellSlightlyTooMuch(self):
         """Verify that sells which are slightly too large to be completed are cancelled."""
         order = FillOrKillOrder("sell", self.amount_slightly_too_high, self.symbol, self.sell_price)
-        CancelledInFullResponse(order.execute()).verify("FillOrKillWouldNotFill")
+        CancelledInFullResponse(order.execute()).verify(order, reason="FillOrKillWouldNotFill")
 
     def testFillOrKillWithNegativePrice(self):
         """Verify that sells with a negative price give an error."""

@@ -37,4 +37,4 @@ def step_impl(context):
 
 @then('the order will be cancelled with (?P<reason>\w+)')
 def step_impl(context, reason):
-    CancelledInFullResponse(context.response).verify(reason)
+    CancelledInFullResponse(context.response).verify(context.order, reason=reason)

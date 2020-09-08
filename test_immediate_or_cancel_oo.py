@@ -35,12 +35,12 @@ class TestImmediateOrCancel(unittest.TestCase):
     def testImmediateOrCancelBuyWithLowPrice(self):
         """Verify that buying with a price that's too low gets cancelled."""
         order = ImmediateOrCancelOrder("buy", self.amount, self.symbol, self.sell_price)
-        CancelledInFullResponse(order.execute()).verify("ImmediateOrCancelWouldPost")
+        CancelledInFullResponse(order.execute()).verify(order, reason="ImmediateOrCancelWouldPost")
 
     def testImmediateOrCancelSellWithHighPrice(self):
         """Verify that selling with a price that's too high gets cancelled."""
         order = ImmediateOrCancelOrder("sell", self.amount, self.symbol, self.buy_price)
-        CancelledInFullResponse(order.execute()).verify("ImmediateOrCancelWouldPost")
+        CancelledInFullResponse(order.execute()).verify(order, reason="ImmediateOrCancelWouldPost")
 
     def testImmediateOrCancelBuyWayTooMuch(self):
         """Verify that buys which are way too large to be completed throw an error."""
@@ -159,7 +159,8 @@ class TestImmediateOrCancel(unittest.TestCase):
     def setUpClass(cls):
         # Adapted from https://docs.python.org/3/howto/logging-cookbook.html
         verbose_format = '%(asctime)s : %(levelno)s : %(funcName)s : %(message)s'
-        logging.basicConfig(level=logging.DEBUG, filemode='w', filename="./reports/" + __name__ + ".log", format=verbose_format)
+        logging.basicConfig(level=logging.DEBUG, filemode='w',
+                            filename="./reports/" + __name__ + ".log", format=verbose_format)
 
         ch = logging.StreamHandler()
         ch.setLevel(logging.INFO)
