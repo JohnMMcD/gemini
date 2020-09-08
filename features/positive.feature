@@ -10,7 +10,7 @@ Feature: Positive Testcases (those that should succeed) with exchange-limit imme
 	When we buy currency from this table
 	| amount | currency |     price |
 	|    0.1 |   BTCUsd |  12000.01 |
-	|    0.1 |   ethUSD |    400.01 |
+	|    1.0 |   ethUSD |    300.01 |
     Then the order will not be cancelled
 
   Scenario: Table-driven sells
@@ -18,7 +18,7 @@ Feature: Positive Testcases (those that should succeed) with exchange-limit imme
 	When we sell currency from this table
 	| amount | currency |     price |
 	|    0.1 |   BTCUsd |   9000.01 |
-	|    0.1 |   ethUSD |    100.01 |
+	|    1.0 |   ethUSD |    100.01 |
     Then the order will not be cancelled
 
   Scenario: Table-driven buy or sell
@@ -26,7 +26,7 @@ Feature: Positive Testcases (those that should succeed) with exchange-limit imme
 	When we transact currency from this table
 	|  side | amount | currency |    price |
 	|   buy |    0.1 |   BTCUsd | 12000.01 |
-	|  sell |    0.1 |   ethUSD |   100.01 |
+	|  sell |    1.0 |   ethUSD |   100.01 |
     Then the order will not be cancelled
 
   Scenario: Table-driven buy or sell that will be cancelled
@@ -34,5 +34,5 @@ Feature: Positive Testcases (those that should succeed) with exchange-limit imme
 	When we transact currency from this table
 	|  side | amount | currency |    price |
 	|   buy |    0.1 |   BTCUsd |  8000.01 |
-	|  sell |    0.1 |   ethUSD |   400.01 |
+	|  sell |    1.0 |   ethUSD |   300.01 |
     Then the order will be cancelled with ImmediateOrCancelWouldPost
