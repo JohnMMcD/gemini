@@ -1,32 +1,38 @@
 # Purpose
+
 Testing the order_new API without involving any other API endpoints.
+
+# Notes
+
+This project uses three different coding / testing styles. In decreasing order of completeness, they are:
+* object-oriented: execute with run_oo_all.cmd/sh
+* behavior-driven: execute with run_bdd.cmd. Uses the object-oriented classes.
+* old-school "one big module": execute with python -m unittest test_fill_or_kill
+
 
 # Dependencies
 
-These modules are used:
-* behave
-* unittest
+Non-default modules used:
+* behave (for Behavior Driven Development testing)
 
-As well as these modules, as used in the sample:
-* requests
-* json
-* base64
-* hmac
-* hashlib
-* datetime, time
+Modules from the sample:
+* requests, json, base64, hmac, hashlib, datetime, time
 
-Also, this retrieves data from a third-party web site; see MOCKISH_BASE_URL for details.
+Default modules:
+* unittest, logging
+
+Also, the "one big module" style retrieves data from a third-party web site; see MOCKISH_BASE_URL in gemini.py for details.
+
 
 # Assumptions
 
 * That the account has sufficient funds and the market has sufficient liquidity to execute transactions of arbitrary size, except for those negative testcases marked NSF.
-* That since other API endpoints should not be invoked, including /v1/pubticker/SYMBOL, the order book is not visible, so no attempt will be made to use realistic prices. E.g., for an immediate-or-cancel order, I will use a very high price for buys if the expected outcome is a filled order, and a very low price if the expected outcome is a cancellation.
-* That the [rate limits](https://docs.gemini.com/rest-api/#rate-limits) have been disabled, so I don't have to add time.sleep(1) before each request. However, I ended up adding in the sleep anyway so that the nonce (which was based on time) would increase.
+* That since other API endpoints should not be invoked, including /v1/pubticker/SYMBOL, the order book is not visible, so no attempt will be made to use realistic prices. E.g., for an immediate-or-cancel order, I will use a very high price for buys if the expected outcome is a filled order, and a very low price if the expected outcome is a cancellation. However, for 2 partial buy/sell testcases, I attempt at determining the market price using only a binary search with only the order_new API, but it's ugly and slow (plus the tests usually fail because the price moves and/or my amount is incorrect).
 * That these areas are out of scope:
- * anything related to high transaction volumes which could risk system stability (yes, I know one laptop won't stress the backend, but it seems impolite to appear to try). So whole classes of tests, such as memory leak, uptime, response time, stability, and anything else involving concurrent users, are out of scope.
+ * anything related to high transaction volumes which could risk system stability (yes, I know one laptop won't stress the backend, but it seems impolite to appear to try). So whole classes of tests, such as memory leak, uptime, response time, stability, and anything else involving concurrent users, are out of scope. Note that rate limits don't seem to be in effect (I ran a testcase to check this and never got a 429 error).
   * session creation and validity. This is because the "If you wish orders to be automatically cancelled when your session ends, see the require heartbeat section, or manually send the cancel all session orders message" note combined with the "no other endpoints" restriction, makes session creation and validity difficult to test, so I'll assume a valid session exists and does not expire for the duration of the test.
  * security-related tests (SQL injection, probing nginx exploits, etc). 
- * anything specific to master API keys, exchange accounts, and basically anything account-privilege related. E.g., that the user's account has the Trader role, and that the OAuth scope has orders:create assigned.
+ * anything specific to master API keys, exchange accounts, and basically anything account-privilege related. The 'given' says that the user's account has the Trader role, and that the OAuth scope has orders:create assigned, and I assume these are correct.
 
 # Unknowns
 
