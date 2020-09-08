@@ -14,11 +14,6 @@ class TestFillOrKillOO(unittest.TestCase):
     amount_slightly_too_high = "9999"
     logger = logging.getLogger(__name__)
 
-    @unittest.skip("for testing logging")
-    def test_logger(self):
-        self.logger.info("self.logger.info test_logger")
-        self.logger.debug("self.logger.debug test_logger")
-
     def testFillOrKillBuyWithHighPrice(self):
         """Verify that your basic buy is executed in full."""
         order = FillOrKillOrder("buy", self.amount, self.symbol, self.buy_price)
@@ -83,7 +78,7 @@ class TestFillOrKillOO(unittest.TestCase):
         ch.setLevel(logging.INFO)
         ch.setFormatter(logging.Formatter(verbose_format))
         cls.logger.addHandler(ch)
-        cls.logger.info("Let's get going! We'll pretend we are starting a new session.")
+        cls.logger.info("Let's start filling and killing! We'll pretend we are starting a new session.")
 
     @classmethod
     def tearDownClass(cls):
