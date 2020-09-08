@@ -1,7 +1,7 @@
 from response import *
 import unittest
 import logging
-
+from order import *
 
 class TestFillOrKillOO(unittest.TestCase):
     amount = "0.01"
@@ -10,7 +10,8 @@ class TestFillOrKillOO(unittest.TestCase):
     sell_price = "1.01"
     # An amount that is impossible to fill in one order
     amount_way_too_high = "9999999999"
-    # An amount that is *possible* to fill in one order, but the order book probably isn't deep enough
+    # An amount that is *possible* to fill in one order, but the order
+    # book won't be deep enough (last check of 24 hour volume was ~2500)
     amount_slightly_too_high = "9999"
     logger = logging.getLogger(__name__)
 
