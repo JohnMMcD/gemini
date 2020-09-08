@@ -13,7 +13,7 @@ I prioritized creating interesting testcases over getting the highest count. I d
 
 # Dependencies
 
-I externalized the API key and secret and put them in files key.txt and secret.txt in the root directory, so these files will need to be re-created efore any testcases can be run. I externalized them because I uploaded this to GitHub and wanted to exclude them from the upload. It's a private repository, but I still didn't feel comfortable uploading them. Please let me know if you want access to the repository so you can see the commit history.
+I externalized the API key and secret and put them in files key.txt and secret.txt in the root directory, so these files will need to be re-created before any testcases can be run. I externalized them because I uploaded this to GitHub and wanted to exclude them from the upload. It's a private repository, but I still didn't feel comfortable uploading them. Please let me know if you want access to the repository so you can see the commit history.
 
 Non-default modules used:
 * behave (for Behavior Driven Development testing)
@@ -22,18 +22,18 @@ Modules from the sample:
 * requests, json, base64, hmac, hashlib, datetime, time
 
 Default modules:
-* unittest, logging
+* unittest, logging, os, system
 
 Also, the "one big module" style retrieves data from a third-party web site; see MOCKISH_BASE_URL in gemini.py for details.
 
 # Assumptions
 
 * That the account has sufficient funds and the market has sufficient liquidity to execute transactions of a reasonable size. There are no checks for volume because the relevant endpoints are prohibited. No attempt was made to use realistic prices. E.g., for an immediate-or-cancel buy order, I will use a very high price if the expected outcome is a filled order, and a very low price if the expected outcome is a cancellation.
-* An exception to the previous assumption is that, for 2 partial buy/sell testcases, I attempt to determine the market price by doing a small buy order and extracting the exection price. However, the tests usually fail because the price moves and/or my quantity is incorrect.
+* An exception to the previous assumption is that, for 2 partial buy/sell testcases using the immediate-or-cancel execution option, I attempt to determine the market price by doing a small buy order and extracting the exection price. However, the tests usually fail because the price moves and/or my quantity is incorrect.
 * That these areas are out of scope:
- * anything related to high transaction volumes which could risk system stability (yes, I know one laptop won't stress the backend, but it seems impolite to appear to try). So whole classes of tests, such as memory leak, uptime, response time, stability, and anything else involving concurrent users, are out of scope.
+ * anything related to high transaction volumes which could risk system stability (yes, I know one laptop won't stress the backend, but it seems impolite to appear to try). So whole classes of tests, such as memory leak, uptime, response time, stability, and anything else involving concurrent users, are out of scope. These aren't typically considered functional tests anyway, but I wanted to make it explicit that I wouldn't try to execute them.
   * session creation and validity. This is because the "If you wish orders to be automatically cancelled when your session ends, see the require heartbeat section, or manually send the cancel all session orders message" note combined with the "no other endpoints" restriction, makes session creation and validity difficult to test, so I'll assume a valid session exists and does not expire for the duration of the test.
- * security-related tests (SQL injection, probing nginx exploits, etc). 
+ * security-related tests (SQL injection, probing nginx exploits, etc).
  * anything specific to master API keys, exchange accounts, and basically anything account-privilege related. The 'given' says that the user's account has the Trader role, and that the OAuth scope has orders:create assigned, and I assume these are correct.
 
 # Unknowns
@@ -50,5 +50,5 @@ Also, the "one big module" style retrieves data from a third-party web site; see
 
 # TODOs / Backlog
 
-* Add more testcases from the https://docs.sandbox.gemini.com/rest-api/#error-payload section. I actually started my own list and worked from that before I came across this section. There are many testcases that I didn't automate due to time constraints.
-* Add [mocking from here](https://realpython.com/testing-third-party-apis-with-mocks/) or [here](https://mydeveloperplanet.com/2020/03/11/how-to-mock-a-rest-api-in-python/) 
+* Add more testcases from the https://docs.sandbox.gemini.com/rest-api/#error-payload section. I actually started my own list of testcases and worked from that before I came across this section. There are many testcases that I didn't automate due to time constraints.
+* To work around the endpoint availability issues, add [mocking from here](https://realpython.com/testing-third-party-apis-with-mocks/) or [here](https://mydeveloperplanet.com/2020/03/11/how-to-mock-a-rest-api-in-python/) 
