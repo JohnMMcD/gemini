@@ -4,7 +4,7 @@ import unittest
 
 class TestStopLimit(unittest.TestCase):
     """
-    A Stop-Limit order is an order type that allows for order placement when a price reaches a specified
+    From the doc: A Stop-Limit order is an order type that allows for order placement when a price reaches a specified
     level. Stop-Limit orders take in both a price and and a stop_price as parameters. The stop_price is the
     price that triggers the order to be placed on the continuous live order book at the price. For buy orders,
     the stop_price must be below the price while sell orders require the stop_price to be greater than the price.
