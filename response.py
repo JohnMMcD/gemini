@@ -1,6 +1,4 @@
-from order import *
-
-class Response():
+class Response:
     """
     Parent class for responses. Note that error responses have very different formats than other responses.
     """
@@ -61,8 +59,8 @@ class ErrorResponse(Response):
 
 
 class CancelledInFullResponse(Response):
-    def __init__(self, dict):
-        Response.__init__(self, dict)
+    def __init__(self, dictionary):
+        Response.__init__(self, dictionary)
 
     def verify(self, order, reason=''):
         """
@@ -86,7 +84,8 @@ class CancelledInFullResponse(Response):
 
         # executed_amount must be zero, or a very small value (never test floats for equality).
         f_expected = float(self.raw['executed_amount'])
-        assert f_expected < 0.001 and f_expected > -0.001, f"Non-zero executed_amount: {self.raw['executed_amount']}"
+        assert (f_expected < 0.001) and (f_expected > -0.001), \
+            f"Non-zero executed_amount: {self.raw['executed_amount']}"
         # Checking the literal '0' string in addition to the floating point inequality
         assert self.raw['executed_amount'] == '0', f"Non-zero executed_amount: {self.raw['executed_amount']}"
 
@@ -115,21 +114,25 @@ class ExecutedInFullResponse(Response):
             True if everything went OK, throws assertion otherwise
         """
         # The 'result' key is only present if there is an error.
-        assert "result" not in response, "Unexpected result in response: self.raw['result']}"
+        assert "result" not in response, \
+            f"Unexpected result in response: {self.raw['result']}"
         # is_cancelled should be false.
-        assert not self.raw["is_cancelled"], f"Response was unexpectedly cancelled with reason {self.raw['reason']}"
+        assert not self.raw["is_cancelled"], \
+            f"Response was unexpectedly cancelled with reason {self.raw['reason']}"
         # executed_amount must be positive
-        assert float(self.raw['executed_amount']) > 0, f"Non-positive executed_amount: {self.raw['executed_amount']}"
-        assert self.raw[
-                   'executed_amount'] == amount, f"Amount mismatch! Expected {amount}, was {self.raw['executed_amount']}"
-        assert self.raw['symbol'] == currency, f"Symbol mismatch! Expected {currency}, was {self.raw['symbol']}"
+        assert float(self.raw['executed_amount']) > 0, \
+            f"Non-positive executed_amount: {self.raw['executed_amount']}"
+        assert self.raw['executed_amount'] == amount, \
+            f"Amount mismatch! Expected {amount}, was {self.raw['executed_amount']}"
+        assert self.raw['symbol'] == currency, \
+            f"Symbol mismatch! Expected {currency}, was {self.raw['symbol']}"
         f_price = float(self.raw['price'])
-        assert abs(
-            f_price - float(price)) < 0.001, f"Executed prices differ: Expected {str(price)}), was {str(f_price)}"
+        assert (abs(f_price - float(price)) < 0.001), \
+            f"Executed prices differ: Expected {str(price)}), was {str(f_price)}"
         assert self.raw['side'] == side, f"Side mismatch! Expected {side}, was {self.raw['side']}"
         f_executed = float(self.raw['executed_amount'])
-        assert abs(f_executed - float(
-            amount)) < 0.001, f"Executed amounts differ: Expected {amount}, was {self.raw['executed_amount']}"
+        assert (abs(f_executed - float(amount)) < 0.001), \
+            f"Executed amounts differ: Expected {amount}, was {self.raw['executed_amount']}"
         assert self.raw['type'] == order_type, f"Type mismatch! Expected {order_type}, was {self.raw['type']}"
         assert self.raw['options'] == options, f"Options mismatch! Expected {options}, was {self.raw['options']}"
 
@@ -172,6 +175,17 @@ class ExecutedInFullResponse(Response):
             f"Options mismatch! Expected {order.options}, was {self.raw['options']}"
 
         return True
+
+    def get_avg_execution_price(self):
+        """
+        Returns:
+            The average execution price, if it can be determined, or 0 if it can't.
+        """
+        if 'avg_execution_price' in self.raw:
+            if self.raw['avg_execution_price']:
+                return self.raw['avg_execution_price']
+
+        return 0
 
 
 class NoExecutedAmountResponse(Response):
