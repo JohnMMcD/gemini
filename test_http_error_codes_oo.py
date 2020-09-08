@@ -3,8 +3,10 @@ import json
 import base64
 import hmac
 import hashlib
-import datetime, time
+import datetime
+import time
 import unittest
+import logging
 
 
 class TestHTTPErrorCode(unittest.TestCase):
@@ -25,6 +27,7 @@ class TestHTTPErrorCode(unittest.TestCase):
     amount_way_too_high = "9999999999"
     VALID_BASE_URL = "https://api.sandbox.gemini.com"
     ENDPOINT = "/v1/order/new"
+    logger = logging.getLogger(__name__)
 
     def testHTTP30x(self):
         """ Executes an order using HTTP, not HTTPS. Might show a bug because the
@@ -38,9 +41,9 @@ class TestHTTPErrorCode(unittest.TestCase):
         http_base_url = "http://api.sandbox.gemini.com"
         url = http_base_url + self.ENDPOINT
         with open('key.txt') as f:
-            API_KEY = f.read()
+            api_key = f.read()
         with open('secret.txt') as f:
-            API_SECRET = f.read().encode()
+            api_secret = f.read().encode()
 
         t = datetime.datetime.now()
         payload_nonce = str(99999999999999999 + int(time.mktime(t.timetuple()) * 1000))
@@ -57,7 +60,7 @@ class TestHTTPErrorCode(unittest.TestCase):
 
         encoded_payload = json.dumps(payload).encode()
         b64 = base64.b64encode(encoded_payload)
-        signature = hmac.new(API_SECRET, b64, hashlib.sha384).hexdigest()
+        signature = hmac.new(api_secret, b64, hashlib.sha384).hexdigest()
 
         # Add some extra request headers for debugging
         request_headers = {'Content-Type': "text/plain",
@@ -68,19 +71,19 @@ class TestHTTPErrorCode(unittest.TestCase):
                            'X-GTEST-amount': self.amount,
                            'X-GTEST-options': "['fill-or-kill']",
                            'X-GEMINI-PAYLOAD': b64,
-                           'X-GEMINI-APIKEY': API_KEY,
+                           'X-GEMINI-APIKEY': api_key,
                            'X-GEMINI-SIGNATURE': signature,
                            'Content-Length': "0",
                            'Cache-Control': "no-cache"}
-        print(f"Sending request to HTTP URL {url}")
+        self.logger.debug(f"Sending request to HTTP URL {url}")
         # Had to put a sleep in here so the nonces would change
         time.sleep(2.0)
         response = requests.post(url,
                                  data=None,
                                  headers=request_headers)
-        print(f"Response code should be 301 or 302 but is {response.status_code}.")
+        self.logger.warning(f"Response code should be 301 or 302 but is {response.status_code}.")
         new_order_response = response.json()
-        assert new_order_response['reason'] == 'EndpointNotFound', "Incorrect error message"
+        self.assertEqual(new_order_response['reason'], 'EndpointNotFound', "Incorrect error message")
 
     def testHTTP400MalformedAuthenticationHeaders(self):
         """ Malformed requests should cause HTTP 400 errors:
@@ -89,7 +92,7 @@ class TestHTTPErrorCode(unittest.TestCase):
 
         url = self.VALID_BASE_URL + self.ENDPOINT
         with open('key.txt') as f:
-            API_KEY = f.read()
+            api_key = f.read()
         # Not doing secret because this about malformed authentication headers
 
         t = datetime.datetime.now()
@@ -117,26 +120,26 @@ class TestHTTPErrorCode(unittest.TestCase):
                            'X-GTEST-amount': self.amount,
                            'X-GTEST-options': "['fill-or-kill']",
                            'X-GEMINI-PAYLOAD': b64,
-                           'X-GEMINI-APIKEY': API_KEY,
+                           'X-GEMINI-APIKEY': api_key,
                            'X-GEMINI-SIGNATURE': "jmcdonne_was_here",
                            'Content-Length': "0",
                            'Cache-Control': "no-cache"}
-        print(f"Sending request to HTTP URL {url}")
+        self.logger.debug(f"Sending request to HTTP URL {url}")
         # Had to put a sleep in here so the nonces would change
         time.sleep(2.0)
         response = requests.post(url,
                                  data=None,
                                  headers=request_headers)
 
-        assert response.status_code == 400, \
-            f"Response code should be 400 but is {response.status_code}."
+        self.assertEqual(response.status_code, 400,
+                         f"Response code should be 400 but is {response.status_code}.")
 
     def testHTTP400MissingAPISignature(self):
         """ 'in the case of a private API request, missing or malformed Gemini private API authentication headers' """
 
-        URL = self.VALID_BASE_URL + self.ENDPOINT
+        url = self.VALID_BASE_URL + self.ENDPOINT
         with open('key.txt') as f:
-            API_KEY = f.read()
+            api_key = f.read()
         # secret is missing by design
 
         t = datetime.datetime.now()
@@ -164,17 +167,17 @@ class TestHTTPErrorCode(unittest.TestCase):
                            'X-GTEST-amount': self.amount,
                            'X-GTEST-options': "['fill-or-kill']",
                            'X-GEMINI-PAYLOAD': b64,
-                           'X-GEMINI-APIKEY': API_KEY, # signature removed
+                           'X-GEMINI-APIKEY': api_key,  # signature removed
                            'Content-Length': "0",
                            'Cache-Control': "no-cache"}
         # Had to put a sleep in here so the nonces would change
         time.sleep(2.0)
-        response = requests.post(URL,
+        response = requests.post(url,
                                  data=None,
                                  headers=request_headers)
 
-        assert response.status_code == 400, \
-            f"Response code should be 400 but is {response.status_code}."
+        self.assertEqual(response.status_code, 400,
+                         f"Response code should be 400 but is {response.status_code}.")
 
     @unittest.skip("because you only have one API key.")
     def testHTTP403MissingRole(self):
@@ -184,7 +187,7 @@ class TestHTTPErrorCode(unittest.TestCase):
     @unittest.skip("because only one entry point is allowed and order status isn't it.")
     def testHTTP404UnknownEntryPointOrOrderNotFound(self):
         """Verify that unknown entry points throw HTTP 404 error."""
-        bad_endpoint = "/v1/order/foo"
+        # bad_endpoint = "/v1/order/foo" ...
         # ...
         pass
 
@@ -212,9 +215,9 @@ class TestHTTPErrorCode(unittest.TestCase):
         """
         url = self.VALID_BASE_URL + self.ENDPOINT
         with open('key.txt') as f:
-            API_KEY = f.read()
+            api_key = f.read()
         with open('secret.txt') as f:
-            API_SECRET = f.read().encode()
+            api_secret = f.read().encode()
         nonce_offset = 99999999999999000
 
         for i in range(40):
@@ -235,7 +238,7 @@ class TestHTTPErrorCode(unittest.TestCase):
 
             encoded_payload = json.dumps(payload).encode()
             b64 = base64.b64encode(encoded_payload)
-            signature = hmac.new(API_SECRET, b64, hashlib.sha384).hexdigest()
+            signature = hmac.new(api_secret, b64, hashlib.sha384).hexdigest()
 
             # Add some extra request headers for debugging
             request_headers = {'Content-Type': "text/plain",
@@ -246,19 +249,19 @@ class TestHTTPErrorCode(unittest.TestCase):
                                'X-GTEST-amount': self.amount,
                                'X-GTEST-options': "['fill-or-kill']",
                                'X-GEMINI-PAYLOAD': b64,
-                               'X-GEMINI-APIKEY': API_KEY,
+                               'X-GEMINI-APIKEY': api_key,
                                'X-GEMINI-SIGNATURE': signature,
                                'Content-Length': "0",
                                'Cache-Control': "no-cache"}
-            print(f"Sending request {i} to {url} at {datetime.datetime.now()}")
+            self.logger.debug(f"Sending request {i} to {url} at {datetime.datetime.now()}")
             response = requests.post(url,
                                      data=None,
                                      headers=request_headers)
-            print(f"Response code {i} is: {response.status_code} at {datetime.datetime.now()}")
-            # print(response.text)
+            self.logger.debug(f"Response code {i} is: {response.status_code} at {datetime.datetime.now()}")
+            self.logger.debug(response.text)
             if i > 30:
-                assert response.status_code == 429, f"Status should be 429 but is {response.status_code} "
-        print("Sleep 30 seconds to cool off after triggering the rate limiting")
+                self.assertEqual(response.status_code, 429, f"Status should be 429 but is {response.status_code}")
+        self.logger.info("Sleep 30 seconds to cool off after triggering the rate limiting")
         time.sleep(30)
 
     @unittest.skip("because there doesn't seem to be a way of triggering this.")
@@ -278,11 +281,21 @@ class TestHTTPErrorCode(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        print("Start me up! Testing HTTP Error Codes.")
+        # Adapted from https://docs.python.org/3/howto/logging-cookbook.html
+        verbose_format = '%(asctime)s : %(levelno)s : %(funcName)s : %(message)s'
+        logging.basicConfig(level=logging.DEBUG, filemode='w',
+                            filename="./reports/" + __name__ + ".log", format=verbose_format)
+
+        ch = logging.StreamHandler()
+        ch.setLevel(logging.INFO)
+        ch.setFormatter(logging.Formatter(verbose_format))
+        cls.logger.addHandler(ch)
+
+        cls.logger.info("Start me up! Testing HTTP Error Codes.")
 
     @classmethod
     def tearDownClass(cls):
-        print("Fini! Close your session, take a deep breath, and relax.")
+        cls.logger.info("Fini! Close your session, take a deep breath, and relax.")
 
 
 if __name__ == '__main__':
