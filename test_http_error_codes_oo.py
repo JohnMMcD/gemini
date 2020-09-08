@@ -29,7 +29,7 @@ class TestHTTPErrorCode(unittest.TestCase):
     ENDPOINT = "/v1/order/new"
     logger = logging.getLogger(__name__)
 
-    def testHTTP30x(self):
+    def test_HTTP_30x(self):
         """ Executes an order using HTTP, not HTTPS. Might show a bug because the
         doc says HTTP 30x codes mean:
 
@@ -85,7 +85,7 @@ class TestHTTPErrorCode(unittest.TestCase):
         new_order_response = response.json()
         self.assertEqual(new_order_response['reason'], 'EndpointNotFound', "Incorrect error message")
 
-    def testHTTP400MalformedAuthenticationHeaders(self):
+    def test_HTTP_400_malformed_authentication_headers(self):
         """ Malformed requests should cause HTTP 400 errors:
         'in the case of a private API request, missing or malformed Gemini private API authentication headers'
         """
@@ -134,7 +134,7 @@ class TestHTTPErrorCode(unittest.TestCase):
         self.assertEqual(response.status_code, 400,
                          f"Response code should be 400 but is {response.status_code}.")
 
-    def testHTTP400MissingAPISignature(self):
+    def test_HTTP_400_missing_API_signature(self):
         """ 'in the case of a private API request, missing or malformed Gemini private API authentication headers' """
 
         url = self.VALID_BASE_URL + self.ENDPOINT
@@ -180,23 +180,23 @@ class TestHTTPErrorCode(unittest.TestCase):
                          f"Response code should be 400 but is {response.status_code}.")
 
     @unittest.skip("because you only have one API key.")
-    def testHTTP403MissingRole(self):
+    def test_HTTP_403_missing_role(self):
         """Verify that missing roles throw HTTP 403 error."""
         pass
 
     @unittest.skip("because only one entry point is allowed and order status isn't it.")
-    def testHTTP404UnknownEntryPointOrOrderNotFound(self):
+    def test_HTTP_404_unknown_entry_point_or_order_not_found(self):
         """Verify that unknown entry points throw HTTP 404 error."""
         # bad_endpoint = "/v1/order/foo" ...
         # ...
         pass
 
     @unittest.skip("because there doesn't seem to be a way of triggering this.")
-    def testHTTP406InsufficientFunds(self):
+    def test_HTTP_406_insufficient_funds(self):
         """Verify that 'insufficient funds' gives a 406 error"""
         pass
 
-    def testHTTP429RateLimiting(self):
+    def test_HTTP_429_rate_limiting(self):
         """Verify that rate limiting happens and gives a useful error. Does not seem to be kicking in.
 
         Per https://docs.gemini.com/rest-api/#rate-limits :
@@ -265,17 +265,17 @@ class TestHTTPErrorCode(unittest.TestCase):
         time.sleep(30)
 
     @unittest.skip("because there doesn't seem to be a way of triggering this.")
-    def testHTTP500UnknownError(self):
+    def test_HTTP_500_unknown_error(self):
         """Verify that 'an unknown error' gives a 500 error"""
         pass
 
     @unittest.skip("because there doesn't seem to be a way of triggering this.")
-    def testHTTP502TechnicalDifficulties(self):
+    def test_HTTP_502_technical_difficulties(self):
         """Verify that 'technical difficulties' gives a 502 error"""
         pass
 
     @unittest.skip("because there doesn't seem to be a way of triggering this.")
-    def testHTTP503ExchangeDown(self):
+    def test_HTTP_503_exchange_down(self):
         """Verify that 'exchange down' gives a 503 error"""
         pass
 
