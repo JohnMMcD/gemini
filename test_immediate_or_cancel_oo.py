@@ -65,7 +65,7 @@ class TestImmediateOrCancel(unittest.TestCase):
          # original_amount==3
          # is_cancelled==true
 
-        See the implementation of guessCurrentMarket for what I actually did.
+        See the implementation of guessCurrentMarket for what I actually did. Or don't - it's not pretty.
         """
         current_guess = self.guessCurrentMarket()
         # Give it a small bump to increase the odds that it will be partially filled
@@ -94,6 +94,7 @@ class TestImmediateOrCancel(unittest.TestCase):
         # original_amount=3
         # is_cancelled==true
 
+        See the implementation of guessCurrentMarket for what I actually did.
         """
         current_guess = self.guessCurrentMarket()
         # Give it a small bump down to increase the odds that it will be partially filled
@@ -130,6 +131,7 @@ class TestImmediateOrCancel(unittest.TestCase):
         Returns:
             A floating point number, which should be very close to the market price.
         """
+        self.logger.info("Rube Goldberg finds the market price with one API")
         lowest_worked = float(self.buy_price)
         highest_failed = float(self.sell_price)
 
