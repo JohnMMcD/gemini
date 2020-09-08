@@ -155,17 +155,13 @@ class TestImmediateOrCancel(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        # Mostly from https://docs.python.org/3/howto/logging-cookbook.html
-        logging.basicConfig(level=logging.INFO)
-        fh = logging.FileHandler("./reports/" + __name__ + ".log")
-        fh.setLevel(logging.DEBUG)
+        # Adapted from https://docs.python.org/3/howto/logging-cookbook.html
+        verbose_format = '%(asctime)s : %(levelno)s : %(funcName)s : %(message)s'
+        logging.basicConfig(level=logging.DEBUG, filemode='w', filename="./reports/" + __name__ + ".log", format=verbose_format)
+
         ch = logging.StreamHandler()
         ch.setLevel(logging.INFO)
-        file_formatter = logging.Formatter('%(asctime)s : %(levelno)s : %(funcName)s : %(message)s')
-        screen_formatter = logging.Formatter('%(asctime)s : %(levelno)s : %(name)s : %(message)s')
-        fh.setFormatter(file_formatter)
-        ch.setFormatter(screen_formatter)
-        cls.logger.addHandler(fh)
+        ch.setFormatter(logging.Formatter(verbose_format))
         cls.logger.addHandler(ch)
         cls.logger.info("Let's get going! We'll pretend we are starting a new session.")
 
