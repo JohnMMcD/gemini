@@ -64,12 +64,13 @@ class CancelledInFullResponse(Response):
     def __init__(self, dict):
         Response.__init__(self, dict)
 
-    def verify(self, reason):
+    def verify(self, order, reason=''):
         """
         Verifies the response was cancelled and the reason matched.
         Cancelled responses do not have any errors.
         TODO: Determine other tests.
         Args:
+            order: the order object which can be used for comparison
             reason: the reason for the cancellation
         Returns:
             True if everything went OK, throws assertion otherwise.
