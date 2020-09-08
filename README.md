@@ -40,7 +40,10 @@ Also, the "one big module" style retrieves data from a third-party web site; see
 
 # Issues
 
-* The session is making testing the test scripts harder. I'm getting unwanted SelfCrossPrevented errors due to running the same test repeatedly. I want a way to clear out the session state but I can't because /order/cancel/session is prohibited.
+* Auctions were not open, so all those testcases failed. Similarly, indication of interest order testcases are failing for 0.1 BTC with the message "Invalid quantity for symbol BTCUSD: 0.1."
+* order-status doc lists status for market buy/sell but new-order doc says these don't exist; see response.py
+* rate limiting not working (noted above)
+* The session is making testing the test scripts harder. I'm getting unwanted SelfCrossPrevented errors due to running the same test repeatedly. I want a way to clear out the session state but I can't because /order/cancel/session is prohibited. Allowing this endpoint might make it easier for folks to write and test their tests.
 * My choice of language and libraries limits my characters to those in the latin-1 set; I'm getting a "UnicodeEncodeError: 'latin-1' codec can't encode characters in position 0-1: ordinal not in range(256)", which is [well-known](https://stackoverflow.com/questions/34618149/post-unicode-string-to-web-service-using-python-requests-library), and encoding the values in UTF-8 makes them not serializable. So I'm omitting positive and negative tests for non-Latin-1 characters.
 
 # TODOs
