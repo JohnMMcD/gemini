@@ -5,7 +5,7 @@
 
 Feature: Negative Testcases (those that should fail)
 
-  Scenario: Run a simple test
+  Scenario: Negative testing with invalid prices
     Given we have enough funds
 	When we sell currency from this table
 	| amount | currency |  price |
