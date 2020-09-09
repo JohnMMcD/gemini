@@ -4,6 +4,7 @@ import base64
 import hmac
 import hashlib
 import datetime, time
+from os import path
 
 # Constant-ish attributes
 BASE_URL = "https://api.sandbox.gemini.com"
