@@ -15,8 +15,8 @@ class Order:
     URL = BASE_URL + ENDPOINT
 
     # To set the API key and secrets, create the key.txt and secret.txt in 
-    # the same directory as order.py . Or delete the lines below and 
-    # uncomment these, then change their values.
+    # the same directory as order.py , or delete the 8 lines below and 
+    # uncomment these 2 lines, then change their values.
     # API_KEY='account-Mby...QoM'
     # API_SECRET='3hd...qDc3i'.encode()
     

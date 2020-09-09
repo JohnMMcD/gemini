@@ -108,8 +108,20 @@ SIDE_REGEX = "buy|sell"
 
 # The key and secret are externalized so they don't get uploaded to
 # GitHub with the rest of the files.
-API_KEY = open("key.txt", "r").read()
-API_SECRET = open("secret.txt", "r").read().encode()
+# To set the API key and secrets, create the key.txt and secret.txt in 
+# the same directory as gemini.py , or delete the 8 lines below and 
+# uncomment these 2 lines, then change their values.
+# API_KEY='account-Mby...QoM'
+# API_SECRET='3hd...qDc3i'.encode()
+
+if not path.exists("key.txt"):
+    assert False, "key.txt file must exist in the root directory - see the README.MD"
+if not path.exists("secret.txt"):
+    assert False, "secret.txt file must exist in the root directory - see the README.MD"
+with open('key.txt') as f:
+    API_KEY = f.read().strip()
+with open('secret.txt') as f:
+    API_SECRET = f.read().strip().encode()
 
 """ List from https://docs.gemini.com/rest-api/#order-status , but some at this link are optional  """
 mandatory_fields = ["order_id", "symbol", "exchange", "price",
