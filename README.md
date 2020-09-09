@@ -50,5 +50,5 @@ Also, the "one big module" style retrieves data from a third-party web site; see
 
 # TODOs / Backlog
 
-* Add more testcases from the https://docs.sandbox.gemini.com/rest-api/#error-payload section. I actually started my own list of testcases and worked from that before I came across this section. There are many testcases that I didn't automate due to time constraints.
+* Add more testcases from the https://docs.sandbox.gemini.com/rest-api/#error-payload section. I actually started my own list of testcases and worked from that before I came across this section. This section holds many testcases that I didn't automate due to time constraints.
 * To work around the endpoint availability issues, add [mocking from here](https://realpython.com/testing-third-party-apis-with-mocks/) or [here](https://mydeveloperplanet.com/2020/03/11/how-to-mock-a-rest-api-in-python/) 
