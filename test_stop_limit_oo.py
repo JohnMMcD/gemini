@@ -1,5 +1,6 @@
 from response import *
 import unittest
+import logging
 
 
 class TestStopLimit(unittest.TestCase):
@@ -19,6 +20,7 @@ class TestStopLimit(unittest.TestCase):
 
     # An amount that is impossible to fill in one order
     amount_way_too_high = "9999999999"
+    logger = logging.getLogger(__name__)
 
     def test_buy(self):
         """Verify that your basic buy stop limit order is added."""
@@ -88,7 +90,16 @@ class TestStopLimit(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        print("Testing stop limit orders! We'll pretend we are starting a new session.")
+        # Adapted from https://docs.python.org/3/howto/logging-cookbook.html
+        verbose_format = '%(asctime)s : %(levelno)s : %(funcName)s : %(message)s'
+        logging.basicConfig(level=logging.DEBUG, filemode='w',
+                            filename="./reports/" + __name__ + ".log", format=verbose_format)
+        ch = logging.StreamHandler()
+        ch.setLevel(logging.INFO)
+        ch.setFormatter(logging.Formatter(verbose_format))
+        cls.logger.addHandler(ch)
+        cls.logger.info("Let's get going! We'll pretend we are starting a new session.")
+        cls.logger.info("Testing stop limit orders! We'll pretend we are starting a new session.")
 
     @classmethod
     def tearDownClass(cls):
