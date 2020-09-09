@@ -3,6 +3,7 @@ import unittest
 import logging
 from order import *
 
+
 class TestFillOrKillOO(unittest.TestCase):
     amount = "0.01"
     symbol = "btcusd"
