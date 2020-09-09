@@ -5,11 +5,11 @@ Testing the order_new API without involving any other API endpoints.
 # Notes
 
 This project uses three different coding / testing styles. In decreasing order of completeness, they are:
-* object-oriented: execute with run_oo_all.cmd/sh
-* behavior-driven: execute with run_bdd.cmd. Re-uses the object-oriented classes, but adds BDD syntactic sugar.
+* object-oriented (OO): execute with run_oo_all.cmd/sh
+* behavior-driven (BDD): execute with run_bdd.cmd. Re-uses the object-oriented classes, but adds BDD syntactic sugar.
 * old-school "one big module": execute with python -m unittest test_fill_or_kill or test_order_side.
 
-I prioritized creating interesting testcases over getting the highest count. I didn't repeat the testcases for the different currencies, for example, nor did I create testcases with a bunch of different quantities or prices that are functionally equivalent.
+I prioritized creating interesting testcases over getting the highest count. I didn't repeat the testcases for the different currencies, for example, nor did I create testcases with a bunch of different quantities or prices that are functionally equivalent. The BDD 
 
 # Dependencies
 
@@ -29,7 +29,7 @@ Also, the "one big module" style retrieves data from a third-party web site; see
 # Assumptions
 
 * That the account has sufficient funds and the market has sufficient liquidity to execute transactions of a reasonable size. There are no checks for volume because the relevant endpoints are prohibited. No attempt was made to use realistic prices. E.g., for an immediate-or-cancel buy order, I will use a very high price if the expected outcome is a filled order, and a very low price if the expected outcome is a cancellation.
-* An exception to the previous assumption is that, for 2 partial buy/sell testcases using the immediate-or-cancel execution option, I attempt to determine the market price by doing a small buy order and extracting the exection price. However, the tests usually fail because the price moves and/or my quantity is incorrect.
+* An exception to the previous assumption is that, for 2 partial buy/sell testcases using the immediate-or-cancel execution option, I attempt to determine the market price by doing a small buy order and extracting the execution price. However, the tests usually fail because the price moves and/or my quantity is incorrect.
 * That these areas are out of scope:
  * anything related to high transaction volumes which could risk system stability (yes, I know one laptop won't stress the backend, but it seems impolite to appear to try). So whole classes of tests, such as memory leak, uptime, response time, stability, and anything else involving concurrent users, are out of scope. These aren't typically considered functional tests anyway, but I wanted to make it explicit that I wouldn't try to execute them.
   * session creation and validity. This is because the "If you wish orders to be automatically cancelled when your session ends, see the require heartbeat section, or manually send the cancel all session orders message" note combined with the "no other endpoints" restriction, makes session creation and validity difficult to test, so I'll assume a valid session exists and does not expire for the duration of the test.
