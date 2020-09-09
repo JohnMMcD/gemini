@@ -41,9 +41,9 @@ class TestHTTPErrorCode(unittest.TestCase):
         http_base_url = "http://api.sandbox.gemini.com"
         url = http_base_url + self.ENDPOINT
         with open('key.txt') as f:
-            api_key = f.read()
+            api_key = f.read().strip()
         with open('secret.txt') as f:
-            api_secret = f.read().encode()
+            api_secret = f.read().strip().encode()
 
         t = datetime.datetime.now()
         payload_nonce = str(99999999999999999 + int(time.mktime(t.timetuple()) * 1000))
@@ -92,7 +92,7 @@ class TestHTTPErrorCode(unittest.TestCase):
 
         url = self.VALID_BASE_URL + self.ENDPOINT
         with open('key.txt') as f:
-            api_key = f.read()
+            api_key = f.read().strip()
         # Not doing secret because this about malformed authentication headers
 
         t = datetime.datetime.now()
@@ -139,7 +139,7 @@ class TestHTTPErrorCode(unittest.TestCase):
 
         url = self.VALID_BASE_URL + self.ENDPOINT
         with open('key.txt') as f:
-            api_key = f.read()
+            api_key = f.read().strip()
         # secret is missing by design
 
         t = datetime.datetime.now()
@@ -215,9 +215,9 @@ class TestHTTPErrorCode(unittest.TestCase):
         """
         url = self.VALID_BASE_URL + self.ENDPOINT
         with open('key.txt') as f:
-            api_key = f.read()
+            api_key = f.read().strip()
         with open('secret.txt') as f:
-            api_secret = f.read().encode()
+            api_secret = f.read().strip().encode()
         nonce_offset = 99999999999999000
 
         for i in range(40):
