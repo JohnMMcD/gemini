@@ -13,7 +13,7 @@ I prioritized creating interesting testcases over getting the highest count. I d
 
 # Dependencies
 
-I externalized the API key and secret and put them in files key.txt and secret.txt in the root directory, so these files will need to be re-created before any testcases can be run. Alternatively, you can edit the order.py, test_http_error_codes_oo.py, and gemini.py files to add the key and secret as variables (search for API_KEY). I externalized them because I uploaded this to GitHub and wanted to exclude them from the upload. It's a private repository, but I still didn't feel comfortable uploading them. Please let me know if you want access to the repository so you can see the commit history.
+I externalized the API key and secret because I was using GitHub for version control and I didn't want to include the key or secret in the upload. The files are key.txt and secret.txt in the root directory. The original files are in the zip file, but not in GitHub. The GitHub repository is private, but please let me know if you want access to it so you can see the commit history. 
 
 Non-default modules used:
 * behave (for Behavior Driven Development testing)
