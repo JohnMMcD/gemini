@@ -98,6 +98,8 @@ class TestFillOrKill(unittest.TestCase):
         had a zero execution amount. Other test may be added.
         Args:
             response: the dictionary containing the response to be checked
+            amount: original amount, to verify that it matches the remaining amount
+            reason: to verify that the expected and actual reason match
         Returns:
             True if everything went OK, throws assertion otherwise.
         """
@@ -107,7 +109,7 @@ class TestFillOrKill(unittest.TestCase):
         self.assertTrue(response["is_cancelled"], f"Response should have been cancelled but was not")
         # executed_amount must be zero, or a very small value (never test floats for equality).
         f_expected = float(response['executed_amount'])
-        self.assertTrue(f_expected < 0.001 and f_expected > -0.001,
+        self.assertTrue((f_expected < 0.001) and (f_expected > -0.001),
                         f"Non-zero executed_amount: {response['executed_amount']}")
         # Checking the literal '0' string in addition to the floating point inequality
         self.assertEqual(response['executed_amount'], '0',
@@ -116,31 +118,31 @@ class TestFillOrKill(unittest.TestCase):
         self.assertEqual(response['remaining_amount'], amount, "Order was partially filled!")
         return True
 
-    def testBuyNormal(self):
+    def test_buy_normal(self):
         side = "buy"
         response = gemini.transact(self.amount, self.currency, self.buy_price, side, self.type, self.options)
         self.verify_response_basics(response)
         self.verify_executed(response, self.amount, self.currency, self.buy_price, side, self.type, self.options)
 
-    def testSellNormal(self):
+    def test_sell_normal(self):
         side = "sell"
         response = gemini.transact(self.amount, self.currency, self.sell_price, side, self.type, self.options)
         self.verify_response_basics(response)
         self.verify_executed(response, self.amount, self.currency, self.sell_price, side, self.type, self.options)
 
-    def testBuyTooCheap(self):
+    def test_buy_too_cheap(self):
         side = "buy"
         response = gemini.transact(self.amount, self.currency, self.sell_price, side, self.type, self.options)
         self.verify_response_basics(response)
         self.verify_cancelled(response, self.amount, self.cancel_reason)
 
-    def testSellTooHigh(self):
+    def test_sell_too_high(self):
         side = "sell"
         response = gemini.transact(self.amount, self.currency, self.buy_price, side, self.type, self.options)
         self.verify_response_basics(response)
         self.verify_cancelled(response, self.amount, self.cancel_reason)
 
-    def testBuyWayTooMuch(self):
+    def test_buy_way_too_much(self):
         """Verify that buy transactions which would break the exchange given an error."""
         side = "buy"
         response = gemini.transact(self.amount_way_too_high, self.currency,
@@ -148,7 +150,7 @@ class TestFillOrKill(unittest.TestCase):
         # self.verify_response_basics(response)
         self.verify_error(response, 'InvalidQuantity')
 
-    def testSellWayTooMuch(self):
+    def test_sell_way_too_much(self):
         """Verify that sell transactions which would break the exchange given an error."""
         side = "sell"
         response = gemini.transact(self.amount_way_too_high, self.currency, self.sell_price, side, self.type,
@@ -156,7 +158,7 @@ class TestFillOrKill(unittest.TestCase):
         # self.verify_response_basics(response)
         self.verify_error(response, 'InvalidQuantity')
 
-    def testBuySlightlyTooMuch(self):
+    def test_buy_slightly_too_much(self):
         """Verify that transactions which are too large to be completed are killed."""
         side = "buy"
         response = gemini.transact(self.amount_slightly_too_high, self.currency,
@@ -164,7 +166,7 @@ class TestFillOrKill(unittest.TestCase):
         self.verify_response_basics(response)
         self.verify_cancelled(response, self.amount_slightly_too_high, self.cancel_reason)
 
-    def testSellSlightlyTooMuch(self):
+    def test_sell_slightly_too_much(self):
         side = "sell"
         response = gemini.transact(self.amount_slightly_too_high, self.currency, self.sell_price, side, self.type,
                                    self.options)
