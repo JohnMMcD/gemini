@@ -13,14 +13,21 @@ class Order:
     BASE_URL = "https://api.sandbox.gemini.com"
     ENDPOINT = "/v1/order/new"
     URL = BASE_URL + ENDPOINT
+
+    # To set the API key and secrets, create the key.txt and secret.txt in 
+    # the same directory as order.py . Or delete the lines below and 
+    # uncomment these, then change their values.
+    # API_KEY='account-Mby...QoM'
+    # API_SECRET='3hd...qDc3i'.encode()
+    
     if not path.exists("key.txt"):
         assert False, "key.txt file must exist in the root directory - see the README.MD"
     if not path.exists("secret.txt"):
         assert False, "secret.txt file must exist in the root directory - see the README.MD"
     with open('key.txt') as f:
-        API_KEY = f.read()
+        API_KEY = f.read().strip()
     with open('secret.txt') as f:
-        API_SECRET = f.read().encode()
+        API_SECRET = f.read().strip().encode()
 
     def __init__(self, side, amount, symbol, price, order_type, options, min_amount='', stop_price='',
                  client_order_id=''):
