@@ -6,6 +6,16 @@ class Response:
 
     def __init__(self, dict_response):
         self.raw = dict_response
+    
+    def show_summary(self):
+        summary = ''
+        if 'result' in self.raw:
+            summary = summary + f"result: {self.raw['result']}."
+        if 'is_cancelled' in self.raw:
+            if self.raw["is_cancelled"]:
+                summary = summary + f"Response was cancelled with reason {self.raw['reason']}"
+        print(summary)
+
 
 
 """
