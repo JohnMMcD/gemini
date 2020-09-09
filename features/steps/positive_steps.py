@@ -1,6 +1,6 @@
 from behave import *
 from response import *
-
+from order import *
 
 # Use the regular expression matcher
 use_step_matcher('re')
