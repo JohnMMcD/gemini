@@ -44,7 +44,7 @@ class TestOrderSide(unittest.TestCase):
         self.assertTrue("result" in response and response["result"] == "error", "Did not get an error as expected")
         self.assertIn("reason", response, "Did not get a reason for the error")
         self.assertEqual(reason, response["reason"],
-                        f"Got error as expected, but got {response['reason']} instead of {reason}")
+                         f"Got error as expected, but got {response['reason']} instead of {reason}")
         # Errors shouldn't have the is_cancelled element. If this element exists, then we want to know the reason.
         self.assertNotIn("is_cancelled", response, f"Unexpected cancellation because of {response['reason']}")
         return True
@@ -69,12 +69,12 @@ class TestOrderSide(unittest.TestCase):
         response = gemini.transact(self.amount, self.currency, self.buy_price, side, self.type, self.options)
         self.verify_error(response, "InvalidSide")
 
-
     @unittest.skip("Causes encoding errors - see Issues section of README.md")
     def test_buy_with_unicode_side(self):
         side = u"ᛇᚻðeλნ⠝ラı".encode("utf-8")
-        response = gemini.transact(self.amount, self.currency, self.price, side, self.type, self.options)
+        response = gemini.transact(self.amount, self.currency, self.buy_price, side, self.type, self.options)
         self.verify_error(response, "InvalidSide")
+
 
 if __name__ == '__main__':
     unittest.main()
