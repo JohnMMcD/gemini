@@ -60,24 +60,7 @@ class Order:
         Returns:
             A dictionary containing the response.
         """
-        self.payload = payload
-        encoded_payload = json.dumps(payload).encode()
-        b64 = base64.b64encode(encoded_payload)
-        signature = hmac.new(self.API_SECRET, b64, hashlib.sha384).hexdigest()
-
-        # Add some extra request headers for debugging
-        request_headers = {'Content-Type': "text/plain",
-                           'X-GTEST-side': self.side,
-                           'X-GTEST-type': self.order_type,
-                           'X-GTEST-price': self.price,
-                           'X-GTEST-symbol': self.symbol,
-                           'X-GTEST-amount': self.amount,
-                           'X-GTEST-options': ', '.join(self.options),
-                           'X-GEMINI-PAYLOAD': b64,
-                           'X-GEMINI-APIKEY': self.API_KEY,
-                           'X-GEMINI-SIGNATURE': signature,
-                           'Content-Length': "0",
-                           'Cache-Control': "no-cache"}
+        request_headers = self.get_headers(payload)
         # print(f"Request headers: {str(request_headers)}")
         # Had to put a sleep in here so the nonces would change
         time.sleep(2.0)
@@ -96,6 +79,15 @@ class Order:
              A dictionary containing the response.
          """
 
+        #        print(f"Payload: {str(payload)}")
+        return self.execute_payload(self.get_payload())
+
+    def get_payload(self):
+        """
+
+        Returns: the dictionary containing payload of the current order
+
+        """
         t = datetime.datetime.now()
         # Things I didn't read before I started tweaking:
         # > The nonce associated with a request needs to be increasing with
@@ -121,9 +113,31 @@ class Order:
             payload['stop_price'] = self.stop_price
         if self.min_amount:
             payload['min_amount'] = self.min_amount
+        print(repr(payload))
+        return payload
 
-        #        print(f"Payload: {str(payload)}")
-        return self.execute_payload(payload)
+    def get_headers(self, payload):
+        """ Returns the headers (dictionary) of the given payload"""
+        self.payload = payload
+        encoded_payload = json.dumps(payload).encode()
+        b64 = base64.b64encode(encoded_payload)
+        signature = hmac.new(self.API_SECRET, b64, hashlib.sha384).hexdigest()
+
+        # Added some extra request headers for debugging
+        headers= {'Content-Type': "text/plain",
+                           'X-GTEST-side': self.side,
+                           'X-GTEST-type': self.order_type,
+                           'X-GTEST-price': self.price,
+                           'X-GTEST-symbol': self.symbol,
+                           'X-GTEST-amount': self.amount,
+                           'X-GTEST-options': ', '.join(self.options),
+                           'X-GEMINI-PAYLOAD': b64,
+                           'X-GEMINI-APIKEY': self.API_KEY,
+                           'X-GEMINI-SIGNATURE': signature,
+                           'Content-Length': "0",
+                           'Cache-Control': "no-cache"}
+        print(repr(headers))
+        return headers
 
 
 class ExchangeLimitOrder(Order):
