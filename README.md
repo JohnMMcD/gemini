@@ -1,3 +1,37 @@
+## What Is This ?
+This was submitted as my takehome test when I (successfully) applied for a software QA engineer position at Gemini. I have not substantially* changed it since I submitted it, so it does not reflect my current knowledge of either trading or Python coding (I had little experience with either before I joined Gemini). Gemini no longer uses this takehome test in candidate assessments, so publishing this is not revealing any proprietary information.
+
+\* I tweaked the readme to add this section and to remove a sentence fragment mistakenly left in the original.
+
+### The Assignment
+
+Please complete and upload the below QA Test. Feel free to reach out if you have any questions.
+
+Background:
+Gemini is a digital asset exchange. Customers can buy and sell Bitcoin, Ether, and Zcash for US Dollars. For sophisticated customers, Gemini provides a REST API so that customers can place and cancel orders programmatically. 
+
+The Problem:
+The new order API endpoint is described here.
+https://docs.gemini.com/rest-api/#new-order
+How will you test it?
+
+The Solution:
+- Please code up functional test cases in the language of your choice or pseudocode
+- Include both positive and negative cases
+- Be able to quantify the number of distinct tests run
+- Do not invoke any other API endpoints (e.g., order status)
+- Clearly articulate your assumptions
+
+Sandbox credentials: 
+
+URL: https://api.sandbox.gemini.com
+
+Key: account-Mb...redacted
+
+Secret: 3hdG...redacted
+
+# The Readme Which I Submitted Follows...
+
 # Purpose
 
 Testing the order_new API without involving any other API endpoints.
