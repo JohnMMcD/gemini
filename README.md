@@ -9,7 +9,7 @@ This project uses three different coding / testing styles. In decreasing order o
 * behavior-driven (BDD): execute with run_bdd.cmd. Re-uses the object-oriented classes, but adds BDD syntactic sugar.
 * old-school "one big module": execute with python -m unittest test_fill_or_kill or test_order_side.
 
-I prioritized creating interesting testcases over getting the highest count. I didn't repeat the testcases for the different currencies, for example, nor did I create testcases with a bunch of different quantities or prices that are functionally equivalent. The BDD 
+I prioritized creating interesting testcases over getting the highest count. I didn't repeat the testcases for the different currencies, for example, nor did I create testcases with a bunch of different quantities or prices that are functionally equivalent.
 
 # Dependencies
 
